@@ -1,0 +1,2410 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetaOpt</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Unbounded:wght@400;600;800&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+:root{
+  --bg:#0d1117;--bg2:#111520;--bg3:#161c28;--bg4:#1c2436;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.10);
+  --text:rgba(255,255,255,0.88);--text2:rgba(255,255,255,0.5);--text3:rgba(255,255,255,0.25);
+  --accent:#64b5f6;--accent2:#1976d2;--accent-bg:rgba(100,181,246,0.1);--accent-border:rgba(100,181,246,0.25);
+  --green:#66bb6a;--orange:#ffa726;--red:#ef5350;--purple:#ab47bc;--yellow:#ffee58;
+  --shadow:0 8px 32px rgba(0,0,0,0.5);
+  --header-bg:rgba(13,17,23,0.95);
+  --card-hover:rgba(255,255,255,0.02);
+}
+
+
+[data-theme="light"]{
+  --bg:#f5f6f8;--bg2:#ffffff;--bg3:#f0f2f5;--bg4:#e8eaed;
+  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
+  --text:rgba(0,0,0,0.88);--text2:rgba(0,0,0,0.5);--text3:rgba(0,0,0,0.35);
+  --accent:#1976d2;--accent2:#1565c0;--accent-bg:rgba(25,118,210,0.08);--accent-border:rgba(25,118,210,0.2);
+  --green:#2e7d32;--orange:#e65100;--red:#c62828;--purple:#6a1b9a;--yellow:#f57f17;
+  --shadow:0 4px 20px rgba(0,0,0,0.08);
+  --header-bg:rgba(255,255,255,0.97);
+  --card-hover:rgba(0,0,0,0.01);
+}
+[data-theme="light"] .md-t,
+[data-theme="light"] h2,
+[data-theme="light"] h3{color:var(--text)!important}
+[data-theme="light"] .mo .md{background:var(--bg2);color:var(--text)}
+[data-theme="light"] option{background:var(--bg2);color:var(--text)}
+[data-theme="light"] .sch-row input,[data-theme="light"] .sch-row select,
+[data-theme="light"] .r-row select,[data-theme="light"] .r-row input{
+  background:var(--bg3);color:var(--text);border-color:var(--border2)}
+[data-theme="light"] .card{background:var(--bg2)}
+[data-theme="light"] .sidebar{background:var(--bg2)}
+[data-theme="light"] .dt th{background:var(--bg3);color:var(--text3)}
+[data-theme="light"] .dt td{color:var(--text)}
+[data-theme="light"] #toast{background:var(--bg2);color:var(--text)}
+[data-theme="light"] .plog{background:var(--bg3);color:var(--text2)}
+[data-theme="light"] .ab{filter:brightness(0.85) saturate(1.2)}
+[data-theme="light"] canvas{filter:invert(1) hue-rotate(180deg)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'IBM Plex Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .2s,color .2s}
+header{position:relative;z-index:10;border-bottom:1px solid var(--border2);padding:0 24px;display:flex;align-items:center;gap:20px;height:58px;background:var(--header-bg);backdrop-filter:blur(20px)}
+.logo{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:700;color:var(--accent);letter-spacing:-0.01em}
+.logo span{color:var(--text2);font-weight:300}
+nav{display:flex;gap:2px;margin-left:auto}
+nav button{background:none;border:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);padding:7px 13px;border-radius:6px;transition:all .15s}
+nav button:hover{background:var(--bg3);color:var(--text)}
+nav button.active{background:var(--accent-bg);color:var(--accent);border:1px solid var(--accent-border)}
+.theme-toggle{width:36px;height:36px;border-radius:8px;background:var(--bg3);border:1px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;margin-left:8px;flex-shrink:0}
+.theme-toggle:hover{background:var(--bg4);border-color:var(--accent-border)}
+.app{position:relative;z-index:1}
+.page{display:none}.page.active{display:block}
+.sidebar-layout{display:grid;grid-template-columns:256px 1fr;min-height:calc(100vh - 58px)}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:16px 0;overflow-y:auto;transition:background .2s}
+.sidebar-title{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:6px 18px 10px;font-weight:600}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:8px 18px;cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;border-left:2px solid transparent;border-radius:0}
+.sidebar-item:hover{background:var(--bg3);color:var(--text)}
+.sidebar-item.active{background:var(--accent-bg);color:var(--accent);border-left-color:var(--accent)}
+.sidebar-item .item-icon{font-size:15px;width:18px;text-align:center}
+.sidebar-item .item-badge{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:10px;background:var(--bg4);padding:1px 5px;border-radius:3px;color:var(--text3)}
+.main-content{overflow-y:auto;padding:24px 32px}
+h2{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:18px}
+h3{font-size:14px;font-weight:600;color:var(--text);margin-bottom:12px}
+.sec-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.btn{font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border-radius:7px;cursor:pointer;border:none;transition:all .15s}
+.btn-p{background:var(--accent);color:#fff;font-weight:600}.btn-p:hover{background:var(--accent2);box-shadow:0 4px 16px var(--accent-bg)}
+.btn-s{background:var(--bg3);color:var(--text);border:1px solid var(--border2)}.btn-s:hover{background:var(--bg4);border-color:var(--border2)}
+.btn-d{background:transparent;color:var(--red);border:1px solid rgba(239,83,80,.2)}.btn-d:hover{background:rgba(239,83,80,.08)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-ico{padding:5px 9px;font-size:13px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;cursor:pointer;color:var(--text2);transition:all .15s}.btn-ico:hover{background:var(--bg4);color:var(--text)}
+.form-g{margin-bottom:14px}
+.form-l{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;letter-spacing:.5px;text-transform:uppercase}
+.form-i,.form-s,.form-t{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:13px;outline:none;transition:border-color .15s,background .15s}
+.form-i:focus,.form-s:focus,.form-t:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg)}
+.form-t{resize:vertical;min-height:60px}
+option{background:var(--bg3)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px;transition:background .15s,border-color .15s,box-shadow .15s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--border2);background:var(--bg2)}
+.card-click{cursor:pointer}.card-click:hover{transform:translateY(-1px);box-shadow:var(--shadow)}
+.cg{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.dt{width:100%;border-collapse:collapse;font-size:13px}
+.dt th{text-align:left;padding:9px 12px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);background:var(--bg3)}
+.dt td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.dt tr:last-child td{border-bottom:none}.dt tr:hover td{background:var(--card-hover)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:12px}
+.chip{font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 7px;border-radius:4px;background:var(--bg3);border:1px solid var(--border2);color:var(--text3)}
+.chip-g{background:rgba(0,255,136,.08);border-color:rgba(0,255,136,.3);color:var(--green)}
+.chip-b{background:rgba(0,229,255,.08);border-color:rgba(0,229,255,.3);color:var(--accent)}
+.chip-r{background:rgba(255,51,85,.08);border-color:rgba(255,51,85,.25);color:var(--red)}
+.tag-p{display:inline-block;margin:2px;padding:2px 7px;border-radius:20px;font-size:10px;background:rgba(0,229,255,.08);border:1px solid rgba(0,229,255,.2);color:var(--accent)}
+.mo{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+.mo.open{display:flex}
+.md{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:540px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow)}
+.md-wide{width:640px}
+.md-t{font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.md-x{background:none;border:none;color:var(--text3);cursor:pointer;font-size:19px;line-height:1}
+.md-x:hover{color:var(--text)}
+.md-f{display:flex;gap:9px;justify-content:flex-end;margin-top:20px;padding-top:18px;border-top:1px solid var(--border)}
+.div{height:1px;background:var(--border);margin:16px 0}
+.fl{display:flex}.gap6{gap:6px}.gap10{gap:10px}.gap12{gap:12px}.aic{align-items:center}.mla{margin-left:auto}
+.mt12{margin-top:12px}.mt18{margin-top:18px}
+.sch-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;background:var(--bg3);padding:7px 10px;border-radius:7px}
+.sch-row input,.sch-row select{background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:4px 7px;color:var(--text);font-size:12px;outline:none}
+.sch-row input{flex:1}
+.r-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;flex-wrap:wrap;background:var(--bg3);padding:9px 11px;border-radius:8px}
+.r-row select,.r-row input{background:var(--bg4);border:1px solid var(--border2);border-radius:5px;padding:5px 9px;color:var(--text);font-size:12px;outline:none}
+.r-lbl{font-size:11px;color:var(--text2);white-space:nowrap}
+.syn-row{display:flex;align-items:center;gap:10px;background:var(--bg3);border-radius:8px;padding:9px 12px;margin-bottom:6px}
+.syn-lbl{flex:1;font-size:12px;color:var(--text2)}
+.syn-v{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;min-width:44px;text-align:center}
+.syn-vp{color:var(--green)}.syn-vn{color:var(--red)}.syn-v0{color:var(--text3)}
+.syn-bar{flex:0 0 72px;height:5px;background:var(--bg4);border-radius:3px;overflow:hidden;position:relative}
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:50px 30px;text-align:center;gap:10px}
+.empty-ico{font-size:36px;opacity:.25}.empty-txt{font-size:13px;color:var(--text3)}
+#toast{position:fixed;bottom:18px;right:18px;z-index:200;background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:11px 16px;font-size:13px;color:var(--text);transform:translateY(50px);opacity:0;transition:all .22s;pointer-events:none;box-shadow:0 6px 28px rgba(0,0,0,.5)}
+#toast.show{transform:translateY(0);opacity:1}#toast.ok{border-color:var(--green);color:var(--green)}#toast.err{border-color:var(--red);color:var(--red)}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pbw{background:var(--bg3);border-radius:5px;height:6px;overflow:hidden}
+.pb{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));border-radius:5px;transition:width .3s}
+.plog{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text2);background:var(--bg3);border-radius:7px;padding:9px;max-height:140px;overflow-y:auto;line-height:1.8;margin-top:8px}
+.st{width:100%;border-collapse:collapse;font-size:13px}
+.st th{text-align:left;padding:8px 11px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+.st td{padding:10px 11px;border-bottom:1px solid var(--border)}
+.st tr:last-child td{border-bottom:none}
+.fb{color:var(--green);font-family:'JetBrains Mono',monospace;font-weight:600}
+.ab{display:inline-block;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600}
+canvas{border-radius:7px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Meta<span>Opt</span></div>
+  <nav>
+    <button class="active" onclick="nav('catalogs')" id="nav-catalogs">Каталоги</button>
+    <button onclick="nav('problems')" id="nav-problems">Задачи</button>
+    <button onclick="nav('experiment')" id="nav-experiment">Эксперимент</button>
+    <button onclick="nav('examples')" id="nav-examples">Примеры</button>
+  </nav>
+  <button class="theme-toggle" id="theme-toggle-btn" onclick="toggleTheme()" title="Переключить тему">🌙</button>
+</header>
+<div class="app">
+
+
+<div id="page-catalogs" class="page active">
+  <div class="sidebar-layout">
+    <div class="sidebar">
+      <div class="sidebar-title">Мои каталоги</div>
+      <div id="cat-sidebar"></div>
+      <div style="padding:8px 14px">
+        <button class="btn btn-s btn-sm" style="width:100%" onclick="openNewCat()">+ Новый каталог</button>
+      </div>
+    </div>
+    <div class="main-content" id="cat-main">
+      <div class="empty"><div class="empty-ico">📂</div><div class="empty-txt">Выберите каталог слева<br>или создайте новый</div></div>
+    </div>
+  </div>
+</div>
+
+
+<div id="page-problems" class="page">
+  <div class="main-content">
+    <div class="fl aic gap12" style="margin-bottom:20px">
+      <h2 style="margin:0">Мои задачи</h2>
+      <button class="btn btn-p btn-sm mla" onclick="openNewProb()">+ Новая задача</button>
+    </div>
+    <div id="prob-list"></div>
+  </div>
+</div>
+
+
+<div id="page-experiment" class="page">
+  <div style="display:grid;grid-template-columns:350px 1fr;gap:18px;padding:22px 28px;min-height:calc(100vh - 58px)">
+    <div class="card" style="height:fit-content;position:sticky;top:70px">
+      <h2>⚙ Эксперимент</h2>
+      <div class="form-g">
+        <label class="form-l">Источник задачи</label>
+        <select class="form-s" id="exp-src" onchange="onSrcChange()">
+          <option value="builtin">Встроенный пример</option>
+          <option value="custom">Из каталога</option>
+        </select>
+      </div>
+      <div id="src-builtin">
+        <div class="form-g">
+          <label class="form-l">Домен</label>
+          <select class="form-s" id="dom-sel" onchange="chkReady()"><option value="">— выберите —</option></select>
+        </div>
+        <div class="form-g">
+          <label class="form-l">Размер конфигурации</label>
+          <div class="fl aic gap10">
+            <input type="range" id="cfg-sz" min="2" max="10" value="5" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('cfg-sz-v').textContent=this.value">
+            <span id="cfg-sz-v" style="font-family:monospace;color:var(--accent);min-width:22px">5</span>
+          </div>
+        </div>
+      </div>
+      <div id="src-custom" style="display:none">
+        <div class="form-g">
+          <label class="form-l">Задача</label>
+          <select class="form-s" id="cust-sel" onchange="chkReady()"><option value="">— выберите —</option></select>
+        </div>
+      </div>
+      <div class="form-g">
+        <label class="form-l">Повторений</label>
+        <div class="fl aic gap10">
+          <input type="range" id="n-runs" min="1" max="20" value="5" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('n-runs-v').textContent=this.value">
+          <span id="n-runs-v" style="font-family:monospace;color:var(--accent);min-width:22px">5</span>
+        </div>
+      </div>
+      <div class="form-g">
+        <label class="form-l">max_evals</label>
+        <div class="fl aic gap10">
+          <input type="range" id="mx-ev" min="100" max="3000" step="100" value="500" style="flex:1;accent-color:var(--accent)" oninput="document.getElementById('mx-ev-v').textContent=this.value">
+          <span id="mx-ev-v" style="font-family:monospace;color:var(--accent);min-width:36px">500</span>
+        </div>
+      </div>
+      <div class="form-g">
+        <label class="form-l">Алгоритмы</label>
+        <div id="alg-list"></div>
+      </div>
+
+      <div id="alg-recommend" style="display:none;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:10px">
+        <div style="font-size:10px;color:var(--text3);font-weight:600;letter-spacing:1px;margin-bottom:8px">РЕКОМЕНДАЦИЯ</div>
+        <div id="alg-recommend-text" style="font-size:12px;color:var(--text2);line-height:1.7"></div>
+      </div>
+      <button class="btn btn-p" style="width:100%;padding:11px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;margin-top:4px" id="run-btn" onclick="runExp()" disabled>▶ Запустить</button>
+    </div>
+    <div>
+      <div id="history-block" style="display:none;margin-bottom:14px">
+        <div class="card" style="padding:12px">
+          <div class="fl aic gap8" style="margin-bottom:8px">
+            <span style="font-size:11px;font-weight:600;color:var(--text2);letter-spacing:1px">ИСТОРИЯ</span>
+            <button class="btn-ico btn-sm mla" style="font-size:11px;padding:3px 8px" onclick="document.getElementById('history-block').style.display='none'">✕</button>
+          </div>
+          <div id="run-history"></div>
+        </div>
+      </div>
+      <div id="res-area">
+        <div class="empty" style="height:100%"><div class="empty-ico">⚗</div><div class="empty-txt">Настройте и запустите эксперимент</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="page-examples" class="page">
+  <div class="main-content">
+    <h2>Встроенные примеры</h2>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:20px">Готовые задачи — щёлкните чтобы запустить</p>
+    <div class="cg" id="ex-cards"></div>
+  </div>
+</div>
+</div><!-- .app -->
+
+<!-- MODAL: каталог -->
+<div class="mo" id="mo-cat">
+  <div class="md">
+    <div class="md-t"><span id="mo-cat-t">Новый каталог</span><button class="md-x" onclick="closeMo('mo-cat')">×</button></div>
+    <input type="hidden" id="cat-eid">
+    <div class="g2">
+      <div class="form-g" style="grid-column:1/3"><label class="form-l">Название</label><input class="form-i" id="cat-name" placeholder="Сотрудники отдела..."></div>
+    </div>
+    <div class="g2">
+      <div class="form-g"><label class="form-l">Иконка</label><input class="form-i" id="cat-ico" value="📦" maxlength="4" style="text-align:center;font-size:20px"></div>
+      <div class="form-g"><label class="form-l">Описание</label><input class="form-i" id="cat-desc" placeholder="Краткое описание..."></div>
+    </div>
+    <div class="div"></div>
+    <div class="fl aic gap10" style="margin-bottom:10px">
+      <span class="sec-title" style="margin:0">Параметры компонентов</span>
+      <button class="btn btn-s btn-sm mla" onclick="addSch()">+ поле</button>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:10px">Какие числовые/текстовые поля будут у каждого элемента</p>
+    <div id="sch-rows"></div>
+    <div class="md-f">
+      <button class="btn btn-s" onclick="closeMo('mo-cat')">Отмена</button>
+      <button class="btn btn-p" onclick="saveCat()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: компонент -->
+<div class="mo" id="mo-comp">
+  <div class="md">
+    <div class="md-t"><span id="mo-comp-t">Добавить компонент</span><button class="md-x" onclick="closeMo('mo-comp')">×</button></div>
+    <input type="hidden" id="comp-eid">
+    <div class="form-g"><label class="form-l">ID (уникальный)</label><input class="form-i" id="comp-id-f" placeholder="alice, server-01, деталь-А..."></div>
+    <div id="comp-params-f"></div>
+    <div class="form-g"><label class="form-l">Теги (через запятую)</label><input class="form-i" id="comp-tags-f" placeholder="backend, senior..."></div>
+    <div class="form-g"><label class="form-l">Заметка</label><input class="form-i" id="comp-note-f" placeholder="Необязательно..."></div>
+    <div class="md-f">
+      <button class="btn btn-s" onclick="closeMo('mo-comp')">Отмена</button>
+      <button class="btn btn-p" onclick="saveComp()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: задача -->
+<div class="mo" id="mo-prob">
+  <div class="md md-wide">
+    <div class="md-t"><span id="mo-prob-t">Новая задача</span><button class="md-x" onclick="closeMo('mo-prob')">×</button></div>
+    <input type="hidden" id="prob-eid">
+    <div class="form-g"><label class="form-l">Название</label><input class="form-i" id="prob-name" placeholder="Подбор команды Q3..."></div>
+    <div class="form-g"><textarea class="form-t" id="prob-desc" placeholder="Описание задачи..."></textarea></div>
+    <div class="g2">
+      <div class="form-g"><label class="form-l">Каталог</label><select class="form-s" id="prob-cat" onchange="onProbCatCh()"><option value="">— выберите —</option></select></div>
+      <div class="form-g"><label class="form-l">Размер конфигурации</label><input class="form-i" id="prob-sz" type="number" value="5" min="1" max="100"></div>
+    </div>
+    <div class="div"></div>
+    <div class="fl aic gap10" style="margin-bottom:9px">
+      <span class="sec-title" style="margin:0">Критерии оптимизации</span>
+      <button class="btn btn-s btn-sm mla" onclick="addObj()">+ критерий</button>
+    </div>
+    <div id="obj-rows"></div>
+    <div class="div"></div>
+    <div class="fl aic gap10" style="margin-bottom:9px">
+      <span class="sec-title" style="margin:0">Ограничения</span>
+      <button class="btn btn-s btn-sm mla" onclick="addCon()">+ ограничение</button>
+    </div>
+    <div id="con-rows"></div>
+    <div class="md-f">
+      <button class="btn btn-s" onclick="closeMo('mo-prob')">Отмена</button>
+      <button class="btn btn-p" onclick="saveProb()">Сохранить</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: синергии -->
+<div class="mo" id="mo-syn">
+  <div class="md" style="width:760px;max-width:96vw">
+    <div class="md-t"><span>Синергии</span><button class="md-x" onclick="closeMo('mo-syn')">×</button></div>
+
+    <!-- Вкладки -->
+    <div class="fl gap6" style="margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:0">
+      <button class="syn-tab active" id="syn-tab-edit" onclick="switchSynTab('edit')"
+        style="background:none;border:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:var(--accent);padding:6px 14px;border-bottom:2px solid var(--accent);margin-bottom:-1px">✏️ Редактор</button>
+      <button class="syn-tab" id="syn-tab-heatmap" onclick="switchSynTab('heatmap')"
+        style="background:none;border:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);padding:6px 14px;border-bottom:2px solid transparent;margin-bottom:-1px">🌡 Тепловая карта</button>
+      <button class="syn-tab" id="syn-tab-graph" onclick="switchSynTab('graph')"
+        style="background:none;border:none;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);padding:6px 14px;border-bottom:2px solid transparent;margin-bottom:-1px">🕸 Граф</button>
+    </div>
+
+    <!-- Редактор -->
+    <div id="syn-pane-edit">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:12px">
+        <span style="color:var(--green)">Положительное</span> — синергия, <span style="color:var(--red)">отрицательное</span> — антагонизм
+      </p>
+      <div class="fl aic gap8" style="margin-bottom:8px">
+        <select class="form-s" style="flex:1" id="syn-a"></select>
+        <select class="form-s" style="flex:1" id="syn-b"></select>
+        <input class="form-i" id="syn-v" type="number" value="1.5" step="0.5" style="width:72px">
+        <input class="form-i" id="syn-note" placeholder="Заметка" style="flex:1">
+        <button class="btn btn-p btn-sm" onclick="addSyn()">+</button>
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px">
+        <div class="fl aic gap8" style="margin-bottom:8px">
+          <span style="font-size:12px;font-weight:600;color:var(--text2)">Импорт CSV</span>
+          <button class="btn btn-s btn-sm mla" onclick="importSynCSV()">Загрузить</button>
+        </div>
+        <textarea id="syn-csv" class="form-t" rows="3"
+          placeholder="comp_id_a,comp_id_b,value,note"
+          style="font-family:monospace;font-size:12px;min-height:70px"></textarea>
+        <div style="font-size:11px;color:var(--text3);margin-top:5px">
+          Формат: comp_id_a,comp_id_b,value,note — первая строка заголовок, note необязателен
+        </div>
+      </div>
+      <div id="syn-list" style="max-height:260px;overflow-y:auto"></div>
+    </div>
+
+    <!-- Тепловая карта -->
+    <div id="syn-pane-heatmap" style="display:none">
+      <div id="syn-heatmap-wrap" style="overflow:auto"></div>
+    </div>
+
+    <!-- Граф -->
+    <div id="syn-pane-graph" style="display:none">
+      <canvas id="syn-graph-canvas" style="width:100%;border-radius:8px;background:var(--bg3)"></canvas>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">
+        Толщина и цвет ребра — сила синергии. <span style="color:var(--green)">Зелёный</span> — усиление, <span style="color:var(--red)">красный</span> — антагонизм.
+      </div>
+    </div>
+
+    <div class="md-f"><button class="btn btn-s" onclick="closeMo('mo-syn')">Закрыть</button></div>
+  </div>
+</div>
+
+<!-- MODAL: импорт данных -->
+<div class="mo" id="mo-import">
+  <div class="md" style="width:700px;max-width:96vw">
+    <div class="md-t"><span>⬆ Импорт данных</span><button class="md-x" onclick="closeMo('mo-import')">×</button></div>
+
+    <!-- Шаг 1: загрузка файла -->
+    <div id="import-step-1">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:16px">
+        Загрузите CSV или Excel файл с данными. Первая строка должна содержать заголовки.
+      </p>
+      <div id="import-dropzone"
+        style="border:2px dashed var(--border2);border-radius:10px;padding:40px;text-align:center;cursor:pointer;transition:all .2s"
+        onclick="document.getElementById('import-file-input').click()"
+        ondragover="event.preventDefault();this.style.borderColor='var(--accent)'"
+        ondragleave="this.style.borderColor='var(--border2)'"
+        ondrop="handleImportDrop(event)">
+        <div style="font-size:32px;margin-bottom:8px">📂</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text)">Перетащите файл или кликните</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:4px">CSV, XLSX, XLS — до 10 МБ</div>
+      </div>
+      <input type="file" id="import-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleImportFile(this)">
+
+      <div style="margin-top:16px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:600">ИЛИ ВСТАВЬТЕ CSV ТЕКСТ:</div>
+        <textarea id="import-csv-text" class="form-t" rows="4"
+          placeholder="comp_id,name,skill,cost&#10;1,Alice,9,120&#10;2,Bob,7,90"
+          style="font-family:monospace;font-size:12px"></textarea>
+        <button class="btn btn-s btn-sm" style="margin-top:8px" onclick="parseImportText()">Разобрать →</button>
+      </div>
+    </div>
+
+    <!-- Шаг 2: маппинг колонок -->
+    <div id="import-step-2" style="display:none">
+      <div class="fl aic gap10" style="margin-bottom:14px">
+        <button class="btn-ico" onclick="showImportStep(1)">← Назад</button>
+        <span style="font-size:13px;color:var(--text2)">Найдено <b id="import-rows-count" style="color:var(--text)">0</b> строк</span>
+        <span style="font-size:13px;color:var(--text2)">Колонки: <b id="import-cols-list" style="color:var(--accent)"></b></span>
+      </div>
+
+      <!-- Превью -->
+      <div id="import-preview" style="overflow:auto;max-height:150px;margin-bottom:16px;background:var(--bg3);border-radius:8px;padding:10px"></div>
+
+      <!-- Маппинг -->
+      <div class="sec-title">Маппинг колонок → поля каталога</div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:12px">
+        Укажи какая колонка файла соответствует какому полю каталога. Несовпадающие колонки попадут в параметры автоматически.
+      </p>
+      <div id="import-mapping" style="display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center"></div>
+
+      <div style="margin-top:16px;padding:12px;background:var(--bg3);border-radius:8px">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;font-weight:600">ТЕГИ</div>
+        <div style="font-size:12px;color:var(--text2)">
+          Колонка для тегов: <select id="import-tags-col" class="form-s" style="width:160px;display:inline-block;margin-left:8px">
+            <option value="">— нет —</option>
+          </select>
+          <span style="color:var(--text3);margin-left:8px">разделитель: <select id="import-tags-sep" class="form-s" style="width:80px;display:inline-block">
+            <option value=";">; (точка с запятой)</option>
+            <option value=",">, (запятая)</option>
+            <option value=" ">пробел</option>
+          </select></span>
+        </div>
+        <div style="font-size:12px;color:var(--text2);margin-top:8px">
+          Добавить колонку как тег: <select id="import-tag-from-col" class="form-s" style="width:160px;display:inline-block;margin-left:8px">
+            <option value="">— нет —</option>
+          </select>
+          <span style="font-size:11px;color:var(--text3);margin-left:6px">(значение колонки станет тегом)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="md-f">
+      <button class="btn btn-s" onclick="closeMo('mo-import')">Отмена</button>
+      <button class="btn btn-p" id="import-do-btn" style="display:none" onclick="doImport()">⬆ Импортировать</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────────────────────────────
+let cats=[], algs=[], builtins=[], custProbs=[];
+let curCatId=null, curSchema=[], curComps=[];
+let curExpId=null, evSrc=null;
+const AC={GA:'#00e5ff',PSO:'#00ff88',DE:'#ff8c00',ACO:'#9b59ff',SA:'#ffe066',HybridDEGA:'#ff3355'};
+
+// ── API ────────────────────────────────────────────────────────────────────────
+async function api(url,method='GET',body=null){
+  const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:body?JSON.stringify(body):null});
+  return r.json();
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────────
+async function init(){
+  [algs,builtins]=await Promise.all([api('/api/algorithms'),api('/api/domains')]);
+  await loadCats();
+  renderAlgs();
+  renderExamples();
+  builtins.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.icon+' '+d.name;document.getElementById('dom-sel').appendChild(o);});
+  onSrcChange();
+}
+
+// ── NAV ────────────────────────────────────────────────────────────────────────
+function nav(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('nav-'+id).classList.add('active');
+  if(id==='problems')loadProbs();
+  if(id==='experiment')loadCustForExp();
+}
+
+// ── CATALOGS ───────────────────────────────────────────────────────────────────
+async function loadCats(){cats=await api('/api/catalogs');renderCatSidebar();}
+
+function renderCatSidebar(){
+  const el=document.getElementById('cat-sidebar');
+  el.innerHTML=cats.length?cats.map(c=>`
+    <div class="sidebar-item ${c.id===curCatId?'active':''}" onclick="selCat(${c.id})">
+      <span class="item-icon">${c.icon}</span><span>${c.name}</span>
+      <span class="item-badge">${c.n_components}</span>
+    </div>`).join('')
+    :'<div style="padding:6px 16px;font-size:12px;color:var(--text3)">Пусто</div>';
+}
+
+// ── Sort state ────────────────────────────────────────────────
+let _sortField = '__id__';
+let _sortDir = 'asc';
+
+function sortComps(comps) {
+  return [...comps].sort((a, b) => {
+    let va, vb;
+    if (_sortField === '__id__') {
+      // числовая сортировка по comp_id если возможно
+      const na = parseFloat(a.comp_id), nb = parseFloat(b.comp_id);
+      va = isNaN(na) ? a.comp_id : na;
+      vb = isNaN(nb) ? b.comp_id : nb;
+    } else {
+      va = a.params[_sortField] ?? '';
+      vb = b.params[_sortField] ?? '';
+    }
+    let cmp = 0;
+    if (typeof va === 'number' && typeof vb === 'number') cmp = va - vb;
+    else cmp = String(va).localeCompare(String(vb), 'ru', {numeric: true});
+    return _sortDir === 'asc' ? cmp : -cmp;
+  });
+}
+
+function setSort(field) {
+  if (_sortField === field) _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+  else { _sortField = field; _sortDir = 'asc'; }
+  renderCatMain(_curCat, curComps);
+}
+
+let _curCat = null;
+
+async function selCat(id){
+  curCatId=id;renderCatSidebar();
+  const[cat,comps]=await Promise.all([api('/api/catalogs/'+id),api('/api/catalogs/'+id+'/components?active=0')]);
+  curSchema=cat.param_schema||[];curComps=comps;_curCat=cat;
+  _sortField='__id__';_sortDir='asc';
+  renderCatMain(cat,comps);
+}
+
+function _sortIcon(field) {
+  if (_sortField !== field) return '<span style="opacity:.25;font-size:10px">⇅</span>';
+  return _sortDir === 'asc'
+    ? '<span style="color:var(--accent);font-size:10px">▲</span>'
+    : '<span style="color:var(--accent);font-size:10px">▼</span>';
+}
+
+function renderCatMain(cat,comps){
+  const sorted = sortComps(comps);
+  // Опции для селекта сортировки
+  const sortOpts = [
+    {val:'__id__', label:'ID'},
+    ...curSchema.map(s=>({val:s.param_key, label:s.param_label}))
+  ].map(o=>`<option value="${o.val}" ${_sortField===o.val?'selected':''}>${o.label}</option>`).join('');
+
+  document.getElementById('cat-main').innerHTML=`
+    <div class="fl aic gap12" style="margin-bottom:20px">
+      <span style="font-size:26px">${cat.icon}</span>
+      <div><h2 style="margin:0">${cat.name}</h2><div style="font-size:12px;color:var(--text2);margin-top:2px">${cat.description||'—'}</div></div>
+      <div class="fl gap6 mla">
+        <button class="btn-ico" title="Синергии" onclick="openSyn(${cat.id})">⚡</button>
+        <button class="btn-ico" title="Изменить" onclick="openEditCat(${cat.id})">✏️</button>
+        <button class="btn-ico btn-d" title="Удалить" onclick="delCat(${cat.id})">🗑</button>
+      </div>
+    </div>
+    ${curSchema.length?`<div class="fl gap6" style="flex-wrap:wrap;margin-bottom:14px">${curSchema.map(s=>`<span class="chip chip-b">${s.param_label}${s.param_unit?' ('+s.param_unit+')':''}</span>`).join('')}</div>`:''}
+    <div class="fl aic gap10" style="margin-bottom:14px;flex-wrap:wrap">
+      <span class="sec-title" style="margin:0">Компоненты (${comps.length})</span>
+      <div class="fl aic gap6" style="background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:4px 8px">
+        <span style="font-size:11px;color:var(--text2)">Сортировка:</span>
+        <select class="form-s" style="padding:3px 7px;font-size:12px;border:none;background:transparent"
+          onchange="_sortField=this.value;_sortDir='asc';renderCatMain(_curCat,curComps)">${sortOpts}</select>
+        <button class="btn-ico" style="padding:3px 8px;font-size:13px"
+          onclick="_sortDir=_sortDir==='asc'?'desc':'asc';renderCatMain(_curCat,curComps)"
+          title="Направление">${_sortDir==='asc'?'▲':'▼'}</button>
+      </div>
+      <button class="btn btn-p btn-sm mla" onclick="openNewComp(${cat.id})">+ Добавить</button>
+      <button class="btn btn-s btn-sm" onclick="openImportModal(${cat.id})">⬆ Импорт</button>
+    </div>
+    ${comps.length?`
+    <table class="dt">
+      <thead><tr>
+        <th style="cursor:pointer;user-select:none" onclick="setSort('__id__')">ID ${_sortIcon('__id__')}</th>
+        ${curSchema.map(s=>`<th style="cursor:pointer;user-select:none" onclick="setSort('${s.param_key}')">${s.param_label} ${_sortIcon(s.param_key)}</th>`).join('')}
+        <th>Теги</th><th>Статус</th><th></th>
+      </tr></thead>
+      <tbody>
+        ${sorted.map(c=>`<tr>
+          <td class="mono" style="color:var(--accent)">${c.comp_id}</td>
+          ${curSchema.map(s=>`<td class="mono">${c.params[s.param_key]??'—'} ${s.param_unit||''}</td>`).join('')}
+          <td>${(c.tags||[]).map(t=>`<span class="tag-p">${t}</span>`).join('')}</td>
+          <td><span class="chip ${c.active?'chip-g':'chip-r'}">${c.active?'вкл':'выкл'}</span></td>
+          <td><div class="fl gap6">
+            <button class="btn-ico" onclick="openEditComp(${c.id})">✏️</button>
+            <button class="btn-ico" onclick="togComp(${c.id},${c.active?0:1})">${c.active?'⏸':'▶'}</button>
+            <button class="btn-ico btn-d" onclick="delComp(${c.id})">🗑</button>
+          </div></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`
+    :`<div class="empty"><div class="empty-ico">📭</div><div class="empty-txt">Нет компонентов.<br>Добавьте первый элемент.</div></div>`}
+  `;
+}
+
+async function delCat(id){
+  if(!confirm('Удалить каталог?'))return;
+  await api('/api/catalogs/'+id,'DELETE');
+  curCatId=null;
+  document.getElementById('cat-main').innerHTML='<div class="empty"><div class="empty-ico">📂</div><div class="empty-txt">Выберите каталог</div></div>';
+  await loadCats(); toast('Удалено');
+}
+
+// ── Cat modal ──────────────────────────────────────────────────────────────────
+function openNewCat(){
+  document.getElementById('cat-eid').value='';
+  document.getElementById('mo-cat-t').textContent='Новый каталог';
+  document.getElementById('cat-name').value='';
+  document.getElementById('cat-ico').value='📦';
+  document.getElementById('cat-desc').value='';
+  document.getElementById('sch-rows').innerHTML='';
+  openMo('mo-cat');
+}
+async function openEditCat(id){
+  const c=await api('/api/catalogs/'+id);
+  document.getElementById('cat-eid').value=id;
+  document.getElementById('mo-cat-t').textContent='Редактировать';
+  document.getElementById('cat-name').value=c.name;
+  document.getElementById('cat-ico').value=c.icon;
+  document.getElementById('cat-desc').value=c.description||'';
+  document.getElementById('sch-rows').innerHTML='';
+  (c.param_schema||[]).forEach(s=>addSch(s));
+  openMo('mo-cat');
+}
+function addSch(d={}){
+  const div=document.createElement('div');div.className='sch-row';
+  div.innerHTML=`<input placeholder="ключ (skill)" value="${d.param_key||''}" class="sk-key" style="max-width:110px">
+    <input placeholder="Название" value="${d.param_label||''}" class="sk-lbl">
+    <select class="sk-type"><option value="number" ${d.param_type==='number'?'selected':''}>Число</option><option value="text" ${d.param_type==='text'?'selected':''}>Текст</option></select>
+    <input placeholder="ед." value="${d.param_unit||''}" class="sk-unit" style="max-width:60px">
+    <button class="btn-ico" onclick="this.parentNode.remove()" style="flex-shrink:0">✕</button>`;
+  document.getElementById('sch-rows').appendChild(div);
+}
+async function saveCat(){
+  const id=document.getElementById('cat-eid').value;
+  const name=document.getElementById('cat-name').value.trim();
+  if(!name){toast('Введите название','err');return;}
+  const param_schema=[...document.querySelectorAll('#sch-rows .sch-row')].map(r=>({
+    param_key:r.querySelector('.sk-key').value.trim(),param_label:r.querySelector('.sk-lbl').value.trim(),
+    param_type:r.querySelector('.sk-type').value,param_unit:r.querySelector('.sk-unit').value.trim()
+  })).filter(s=>s.param_key);
+  const body={name,description:document.getElementById('cat-desc').value,icon:document.getElementById('cat-ico').value,param_schema};
+  if(id){await api('/api/catalogs/'+id,'PUT',body);toast('Обновлено','ok');}
+  else{const r=await api('/api/catalogs','POST',body);curCatId=r.id;toast('Создан','ok');}
+  closeMo('mo-cat');await loadCats();if(curCatId)selCat(curCatId);
+}
+
+// ── Component modal ────────────────────────────────────────────────────────────
+let _compCatId=null;
+function openNewComp(cid){
+  _compCatId=cid;
+  document.getElementById('comp-eid').value='';
+  document.getElementById('mo-comp-t').textContent='Добавить компонент';
+  document.getElementById('comp-id-f').value='';
+  document.getElementById('comp-tags-f').value='';
+  document.getElementById('comp-note-f').value='';
+  renderCompParams({});openMo('mo-comp');
+}
+async function openEditComp(id){
+  const c=await api('/api/components/'+id);_compCatId=c.catalog_id;
+  document.getElementById('comp-eid').value=id;
+  document.getElementById('mo-comp-t').textContent='Редактировать';
+  document.getElementById('comp-id-f').value=c.comp_id;
+  document.getElementById('comp-tags-f').value=(c.tags||[]).join(', ');
+  document.getElementById('comp-note-f').value=c.note||'';
+  renderCompParams(c.params||{});openMo('mo-comp');
+}
+function renderCompParams(ex){
+  const el=document.getElementById('comp-params-f');
+  if(!curSchema.length){el.innerHTML='<p style="font-size:12px;color:var(--text3);margin-bottom:10px">Схема параметров не задана — добавьте поля в настройках каталога</p>';return;}
+  el.innerHTML=curSchema.map(s=>`<div class="form-g"><label class="form-l">${s.param_label}${s.param_unit?' ('+s.param_unit+')':''}</label>
+    <input class="form-i" id="cp-${s.param_key}" type="${s.param_type==='number'?'number':'text'}" value="${ex[s.param_key]??''}" placeholder="${s.param_label}..."></div>`).join('');
+}
+async function saveComp(){
+  const eid=document.getElementById('comp-eid').value;
+  const comp_id=document.getElementById('comp-id-f').value.trim();
+  if(!comp_id){toast('Введите ID','err');return;}
+  const params={};
+  curSchema.forEach(s=>{const el=document.getElementById('cp-'+s.param_key);if(el)params[s.param_key]=s.param_type==='number'?parseFloat(el.value)||0:el.value;});
+  const tags=document.getElementById('comp-tags-f').value.split(',').map(t=>t.trim()).filter(Boolean);
+  const note=document.getElementById('comp-note-f').value;
+  if(eid){await api('/api/components/'+eid,'PUT',{comp_id,params,tags,note});toast('Обновлено','ok');}
+  else{await api('/api/catalogs/'+_compCatId+'/components','POST',{comp_id,params,tags,note});toast('Добавлено','ok');}
+  closeMo('mo-comp');selCat(curCatId);
+}
+async function delComp(id){if(!confirm('Удалить?'))return;await api('/api/components/'+id,'DELETE');toast('Удалено');selCat(curCatId);}
+async function togComp(id,act){await api('/api/components/'+id+'/toggle','POST',{active:!!act});selCat(curCatId);}
+
+// ── CSV import ─────────────────────────────────────────────────────────────────
+// ── ИМПОРТ ДАННЫХ ─────────────────────────────────────────────────────────────
+let _importCatId = null;
+let _importRows = [];    // [{col: val, ...}, ...]
+let _importHeaders = []; // колонки файла
+
+function openImportModal(cid){
+  _importCatId = cid;
+  _importRows = []; _importHeaders = [];
+  document.getElementById('import-step-1').style.display = '';
+  document.getElementById('import-step-2').style.display = 'none';
+  document.getElementById('import-do-btn').style.display = 'none';
+  document.getElementById('import-csv-text').value = '';
+  openMo('mo-import');
+}
+
+function showImportStep(n){
+  document.getElementById('import-step-1').style.display = n===1?'':'none';
+  document.getElementById('import-step-2').style.display = n===2?'':'none';
+  document.getElementById('import-do-btn').style.display = n===2?'':'none';
+}
+
+function handleImportDrop(e){
+  e.preventDefault();
+  document.getElementById('import-dropzone').style.borderColor='var(--border2)';
+  const file = e.dataTransfer.files[0];
+  if(file) readImportFile(file);
+}
+
+function handleImportFile(input){
+  if(input.files[0]) readImportFile(input.files[0]);
+}
+
+function readImportFile(file){
+  const name = file.name.toLowerCase();
+  if(name.endsWith('.csv')){
+    const reader = new FileReader();
+    reader.onload = e => parseImportCSV(e.target.result);
+    reader.readAsText(file, 'utf-8');
+  } else if(name.endsWith('.xlsx')||name.endsWith('.xls')){
+    const reader = new FileReader();
+    reader.onload = e => parseImportExcel(e.target.result);
+    reader.readAsArrayBuffer(file);
+  } else {
+    toast('Поддерживаются только CSV и Excel файлы','err');
+  }
+}
+
+function parseImportText(){
+  const txt = document.getElementById('import-csv-text').value.trim();
+  if(!txt){ toast('Вставьте CSV данные','err'); return; }
+  parseImportCSV(txt);
+}
+
+function parseImportCSV(text){
+  const lines = text.trim().split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length < 2){ toast('Нужна минимум одна строка данных','err'); return; }
+  // Определяем разделитель
+  const firstLine = lines[0];
+  const sep = firstLine.includes('\t') ? '\t' : firstLine.includes(';') ? ';' : ',';
+  const headers = firstLine.split(sep).map(h=>h.trim().replace(/^"|"$/g,''));
+  const rows = lines.slice(1).map(line=>{
+    const vals = line.split(sep).map(v=>v.trim().replace(/^"|"$/g,''));
+    const obj = {};
+    headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return obj;
+  }).filter(r=>Object.values(r).some(v=>v));
+  _importHeaders = headers;
+  _importRows = rows;
+  renderImportStep2();
+}
+
+async function parseImportExcel(buffer){
+  // Используем SheetJS из CDN если доступен
+  try{
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    script.onload = ()=>{
+      const wb = XLSX.read(buffer, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {header:1});
+      if(!data.length){ toast('Пустой файл','err'); return; }
+      const headers = data[0].map(h=>String(h).trim());
+      const rows = data.slice(1).map(row=>{
+        const obj={};
+        headers.forEach((h,i)=>obj[h]=row[i]!=null?String(row[i]):'');
+        return obj;
+      }).filter(r=>Object.values(r).some(v=>v));
+      _importHeaders = headers;
+      _importRows = rows;
+      renderImportStep2();
+    };
+    script.onerror = ()=>toast('Не удалось загрузить парсер Excel. Используйте CSV.','err');
+    document.head.appendChild(script);
+  }catch(e){
+    toast('Ошибка чтения Excel: '+e.message,'err');
+  }
+}
+
+function renderImportStep2(){
+  if(!_importRows.length){ toast('Нет данных','err'); return; }
+  showImportStep(2);
+
+  document.getElementById('import-rows-count').textContent = _importRows.length;
+  document.getElementById('import-cols-list').textContent = _importHeaders.join(', ');
+
+  // Превью — первые 5 строк
+  const prev = document.getElementById('import-preview');
+  const cols = _importHeaders.slice(0,8);
+  prev.innerHTML = `<table style="border-collapse:collapse;font-size:11px;width:100%">
+    <thead><tr>${cols.map(h=>`<th style="padding:4px 8px;border-bottom:1px solid var(--border);color:var(--text3);text-align:left;white-space:nowrap">${h}</th>`).join('')}</tr></thead>
+    <tbody>${_importRows.slice(0,5).map(r=>`<tr>${cols.map(h=>`<td style="padding:3px 8px;border-bottom:1px solid var(--border);color:var(--text2)">${r[h]||'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+  </table>`;
+
+  // Маппинг
+  const schemaFields = [
+    {key:'__comp_id__', label:'ID компонента (обязательно)', required:true},
+    {key:'__note__', label:'Заметка'},
+    ...curSchema.map(s=>({key:s.param_key, label:s.param_label}))
+  ];
+  const colOpts = ['<option value="">— не использовать —</option>',
+    ..._importHeaders.map(h=>`<option value="${h}">${h}</option>`)].join('');
+
+  const mapping = document.getElementById('import-mapping');
+  mapping.innerHTML = schemaFields.map(f=>{
+    // Автоматически подбираем колонку по совпадению имени
+    const auto = _importHeaders.find(h=>
+      h.toLowerCase()===f.key.toLowerCase() ||
+      h.toLowerCase()===f.label.toLowerCase() ||
+      h.toLowerCase().replace(/[_\s]/g,'')===f.key.toLowerCase().replace(/[_\s]/g,'')
+    ) || '';
+    return `
+      <span style="font-size:12px;color:var(--text2);text-align:right">${f.label}${f.required?'<span style="color:var(--red)">*</span>':''}</span>
+      <span style="font-size:16px;color:var(--text3);text-align:center">→</span>
+      <select class="form-s import-map-sel" data-field="${f.key}" style="font-size:12px">
+        ${colOpts.replace(`value="${auto}"`,`value="${auto}" selected`)}
+      </select>`;
+  }).join('');
+
+  // Заполняем селекты тегов
+  const tagOpts = ['<option value="">— нет —</option>',..._importHeaders.map(h=>`<option value="${h}">${h}</option>`)].join('');
+  document.getElementById('import-tags-col').innerHTML = tagOpts;
+  document.getElementById('import-tag-from-col').innerHTML = tagOpts;
+
+  // Автоопределяем колонку тегов
+  const tagsCol = _importHeaders.find(h=>h.toLowerCase()==='tags'||h.toLowerCase()==='теги');
+  if(tagsCol) document.getElementById('import-tags-col').value = tagsCol;
+}
+
+async function doImport(){
+  const btn = document.getElementById('import-do-btn');
+  btn.disabled = true; btn.textContent = '⏳ Импортируем...';
+
+  // Собираем маппинг
+  const mapping = {};
+  document.querySelectorAll('.import-map-sel').forEach(sel=>{
+    if(sel.value) mapping[sel.dataset.field] = sel.value;
+  });
+
+  if(!mapping['__comp_id__']){ toast('Укажите колонку для ID','err'); btn.disabled=false; btn.innerHTML='⬆ Импортировать'; return; }
+
+  const tagsCol = document.getElementById('import-tags-col').value;
+  const tagFromCol = document.getElementById('import-tag-from-col').value;
+  const tagsSep = document.getElementById('import-tags-sep').value;
+
+  const items = _importRows.map(row=>{
+    const comp_id = row[mapping['__comp_id__']]?.trim();
+    if(!comp_id) return null;
+    const note = mapping['__note__'] ? row[mapping['__note__']] || '' : '';
+
+    // Параметры: сначала из маппинга, потом все остальные колонки
+    const mappedKeys = new Set(Object.values(mapping));
+    const params = {};
+    // Добавляем смаппированные поля схемы
+    curSchema.forEach(s=>{
+      if(mapping[s.param_key]){
+        const v = row[mapping[s.param_key]];
+        params[s.param_key] = s.param_type==='number' ? (parseFloat(v)||0) : (v||'');
+      }
+    });
+    // Добавляем несмаппированные колонки
+    _importHeaders.forEach(h=>{
+      if(!mappedKeys.has(h) && h!==tagsCol && h!==tagFromCol){
+        const v = row[h];
+        if(v!==undefined && v!=='') params[h] = isNaN(v)?v:parseFloat(v);
+      }
+    });
+
+    // Теги
+    let tags = [];
+    if(tagsCol && row[tagsCol]) tags = row[tagsCol].split(tagsSep).map(t=>t.trim()).filter(Boolean);
+    if(tagFromCol && row[tagFromCol]) tags.push(row[tagFromCol].trim());
+    tags = [...new Set(tags)];
+
+    return {comp_id, params, tags, note};
+  }).filter(Boolean);
+
+  if(!items.length){ toast('Нет данных для импорта','err'); btn.disabled=false; btn.innerHTML='⬆ Импортировать'; return; }
+
+  try{
+    const r = await api('/api/catalogs/'+_importCatId+'/components/batch','POST',items);
+    toast(`Импортировано: ${r.created} компонентов`,'ok');
+    closeMo('mo-import');
+    selCat(curCatId);
+  }catch(e){
+    toast('Ошибка импорта: '+e.message,'err');
+  }
+  btn.disabled=false; btn.innerHTML='⬆ Импортировать';
+}
+
+// Оставляем старую функцию для обратной совместимости
+function importCSV(cid){ openImportModal(cid); }
+
+// ── Synergy modal ──────────────────────────────────────────────────────────────
+let _synCatId=null;
+let _synComps=[];  // кеш компонентов текущего каталога
+
+async function openSyn(cid){
+  _synCatId=cid;
+  _synComps=await api('/api/catalogs/'+cid+'/components');
+
+  // Дропдауны показывают имя (если есть) + comp_id
+  const opts=_synComps.map(c=>{
+    const schema=curSchema||[];
+    const nameField=schema.find(s=>s.param_key==='hero_name'||s.param_key==='name'||s.param_key==='title');
+    const label=nameField&&c.params[nameField.param_key]
+      ? c.params[nameField.param_key]+' ('+c.comp_id+')'
+      : c.comp_id;
+    return`<option value="${c.comp_id}">${label}</option>`;
+  }).join('');
+  document.getElementById('syn-a').innerHTML=opts;
+  document.getElementById('syn-b').innerHTML=opts;
+  await refreshSyn();openMo('mo-syn');
+}
+
+// Разрешает имя → comp_id используя кеш компонентов
+function resolveSynId(val){
+  // Если точное совпадение с comp_id — используем как есть
+  if(_synComps.find(c=>c.comp_id===val)) return val;
+  // Ищем по любому текстовому параметру (hero_name, name, title...)
+  const found=_synComps.find(c=>
+    Object.values(c.params).some(v=>String(v).toLowerCase()===val.toLowerCase())
+  );
+  return found ? found.comp_id : null;
+}
+
+async function refreshSyn(){
+  const syns=await api('/api/catalogs/'+_synCatId+'/synergies');
+  _synCache=syns;  // кешируем для визуализации
+  const el=document.getElementById('syn-list');
+  if(!syns.length){el.innerHTML='<div class="empty"><div class="empty-txt">Нет синергий</div></div>';return;}
+
+  // Строим маппинг comp_id → отображаемое имя
+  const schema=curSchema||[];
+  const nameField=schema.find(s=>s.param_key==='hero_name'||s.param_key==='name'||s.param_key==='title');
+  const idToName={};
+  _synComps.forEach(c=>{
+    idToName[c.comp_id]=nameField&&c.params[nameField.param_key]
+      ? c.params[nameField.param_key]
+      : c.comp_id;
+  });
+
+  el.innerHTML=syns.map(s=>{
+    const cls=s.value>0?'syn-vp':s.value<0?'syn-vn':'syn-v0';
+    const pct=Math.min(100,Math.abs(s.value)/3*100);
+    const nameA=idToName[s.comp_id_a]||s.comp_id_a;
+    const nameB=idToName[s.comp_id_b]||s.comp_id_b;
+    return`<div class="syn-row">
+      <span class="syn-lbl">
+        <b style="color:var(--accent)">${nameA}</b>
+        <span style="color:var(--text3);font-size:10px"> (${s.comp_id_a})</span>
+        ↔
+        <b style="color:var(--accent)">${nameB}</b>
+        <span style="color:var(--text3);font-size:10px"> (${s.comp_id_b})</span>
+        ${s.note?`<span style="color:var(--text3);font-size:11px"> — ${s.note}</span>`:''}
+      </span>
+      <div class="syn-bar"><div style="height:100%;border-radius:3px;background:${s.value>=0?'var(--green)':'var(--red)'};width:${pct}%;${s.value<0?'margin-left:auto':''}"></div></div>
+      <span class="syn-v ${cls}">${s.value>0?'+':''}${s.value}</span>
+      <button class="btn-ico btn-d btn-sm" onclick="delSyn(${s.id})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function addSyn(){
+  const a=document.getElementById('syn-a').value,b=document.getElementById('syn-b').value;
+  const v=parseFloat(document.getElementById('syn-v').value);
+  const note=document.getElementById('syn-note').value.trim();
+  if(a===b){toast('Выберите разные компоненты','err');return;}
+  await api('/api/catalogs/'+_synCatId+'/synergies','POST',{comp_id_a:a,comp_id_b:b,value:v,note});
+  document.getElementById('syn-note').value='';
+  await refreshSyn();toast('Добавлено','ok');
+}
+async function delSyn(id){await api('/api/synergies/'+id,'DELETE');await refreshSyn();}
+
+// ── ВКЛАДКИ СИНЕРГИЙ ───────────────────────────────────────────────────────
+function switchSynTab(tab){
+  ['edit','heatmap','graph'].forEach(t=>{
+    document.getElementById('syn-pane-'+t).style.display = t===tab?'':'none';
+    const btn=document.getElementById('syn-tab-'+t);
+    btn.style.color = t===tab?'var(--accent)':'var(--text2)';
+    btn.style.borderBottomColor = t===tab?'var(--accent)':'transparent';
+  });
+  if(tab==='heatmap') renderHeatmap();
+  if(tab==='graph')   renderGraph();
+}
+
+// ── ТЕПЛОВАЯ КАРТА ─────────────────────────────────────────────────────────
+function renderHeatmap(){
+  const wrap=document.getElementById('syn-heatmap-wrap');
+  const syns=_synCache||[];
+  const comps=_synComps||[];
+  if(!comps.length){wrap.innerHTML='<div class="empty"><div class="empty-ico">🌡</div><div class="empty-txt">Нет компонентов</div></div>';return;}
+
+  // Строим индекс синергий
+  const synMap={};
+  syns.forEach(s=>{ synMap[s.comp_id_a+'|'+s.comp_id_b]=s.value; synMap[s.comp_id_b+'|'+s.comp_id_a]=s.value; });
+
+  const getName=c=>{
+    const nf=curSchema?.find(s=>s.param_key==='hero_name'||s.param_key==='name_field');
+    return nf&&c.params?.[nf.param_key]?c.params[nf.param_key]:c.comp_id;
+  };
+
+  // Находим макс значение для нормализации цвета
+  const allVals=syns.map(s=>Math.abs(s.value));
+  const maxVal=Math.max(...allVals,1);
+
+  const cellSize=Math.max(36, Math.min(54, Math.floor(560/comps.length)));
+  const labelW=90;
+
+  let html=`<div style="overflow:auto;padding-bottom:8px">
+    <table style="border-collapse:collapse;font-size:11px">
+    <thead><tr>
+      <th style="width:${labelW}px"></th>
+      ${comps.map(c=>`<th style="width:${cellSize}px;padding:4px 2px;text-align:center;color:var(--text3);font-weight:500;font-size:10px;white-space:nowrap;overflow:hidden;max-width:${cellSize}px;text-overflow:ellipsis" title="${getName(c)}">${getName(c).substring(0,6)}</th>`).join('')}
+    </tr></thead><tbody>`;
+
+  comps.forEach(rowC=>{
+    html+=`<tr><td style="padding:2px 6px 2px 0;color:var(--text2);font-size:11px;white-space:nowrap;text-align:right;max-width:${labelW}px;overflow:hidden;text-overflow:ellipsis" title="${getName(rowC)}">${getName(rowC).substring(0,10)}</td>`;
+    comps.forEach(colC=>{
+      if(rowC.comp_id===colC.comp_id){
+        html+=`<td style="width:${cellSize}px;height:${cellSize}px;background:var(--bg3);text-align:center;font-size:14px">—</td>`;
+        return;
+      }
+      const key=rowC.comp_id+'|'+colC.comp_id;
+      const val=synMap[key];
+      if(val===undefined){
+        html+=`<td style="width:${cellSize}px;height:${cellSize}px;background:var(--bg4)" title="${getName(rowC)} ↔ ${getName(colC)}: нет данных"></td>`;
+        return;
+      }
+      const intensity=Math.min(1,Math.abs(val)/maxVal);
+      const alpha=0.15+intensity*0.75;
+      const bg=val>0?`rgba(0,255,136,${alpha})`:`rgba(255,51,85,${alpha})`;
+      const textC=intensity>0.5?'#000':'var(--text)';
+      html+=`<td style="width:${cellSize}px;height:${cellSize}px;background:${bg};text-align:center;cursor:default;border-radius:3px;font-family:monospace;font-size:11px;color:${textC};font-weight:600" title="${getName(rowC)} ↔ ${getName(colC)}: ${val>0?'+':''}${val}">${val>0?'+':''}${val}</td>`;
+    });
+    html+=`</tr>`;
+  });
+  html+=`</tbody></table></div>`;
+
+  // Легенда
+  html+=`<div class="fl gap12 aic" style="margin-top:10px;font-size:11px;color:var(--text2)">
+    <div style="display:flex;align-items:center;gap:6px">
+      <div style="width:40px;height:14px;border-radius:3px;background:linear-gradient(90deg,rgba(0,255,136,.15),rgba(0,255,136,.9))"></div>
+      <span>синергия (+)</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px">
+      <div style="width:40px;height:14px;border-radius:3px;background:linear-gradient(90deg,rgba(255,51,85,.15),rgba(255,51,85,.9))"></div>
+      <span>антагонизм (−)</span>
+    </div>
+    <span style="color:var(--text3)">серый — нет данных</span>
+  </div>`;
+
+  wrap.innerHTML=html;
+}
+
+// ── ГРАФ СИНЕРГИЙ ──────────────────────────────────────────────────────────
+function renderGraph(){
+  const canvas=document.getElementById('syn-graph-canvas');
+  const syns=_synCache||[];
+  const comps=_synComps||[];
+  if(!comps.length||!syns.length){
+    const ctx=canvas.getContext('2d');
+    const W=680,H=420;canvas.width=W;canvas.height=H;
+    ctx.fillStyle='#151b24';ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#4a6680';ctx.font='14px sans-serif';ctx.textAlign='center';
+    ctx.fillText('Нет синергий для отображения',W/2,H/2);
+    return;
+  }
+
+  const getName=c=>{
+    const nf=curSchema?.find(s=>s.param_key==='hero_name'||s.param_key==='name_field');
+    return nf&&c.params?.[nf.param_key]?c.params[nf.param_key]:c.comp_id;
+  };
+
+  const W=680,H=460;canvas.width=W;canvas.height=H;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#151b24';ctx.fillRect(0,0,W,H);
+
+  // Только компоненты у которых есть хоть одна синергия
+  const involvedIds=new Set();
+  syns.forEach(s=>{involvedIds.add(s.comp_id_a);involvedIds.add(s.comp_id_b);});
+  const nodes=comps.filter(c=>involvedIds.has(c.comp_id));
+  const n=nodes.length;
+  if(!n)return;
+
+  // Расставляем узлы по кругу
+  const cx=W/2,cy=H/2-20;
+  const R=Math.min(cx,cy)-70;
+  const positions={};
+  nodes.forEach((c,i)=>{
+    const angle=(2*Math.PI*i/n)-Math.PI/2;
+    positions[c.comp_id]={x:cx+R*Math.cos(angle),y:cy+R*Math.sin(angle),name:getName(c)};
+  });
+
+  const maxVal=Math.max(...syns.map(s=>Math.abs(s.value)),1);
+
+  // Рисуем рёбра
+  syns.forEach(s=>{
+    const pa=positions[s.comp_id_a],pb=positions[s.comp_id_b];
+    if(!pa||!pb)return;
+    const intensity=Math.abs(s.value)/maxVal;
+    const alpha=0.3+intensity*0.7;
+    const lw=1+intensity*4;
+    const color=s.value>0?`rgba(0,255,136,${alpha})`:`rgba(255,51,85,${alpha})`;
+
+    ctx.beginPath();ctx.moveTo(pa.x,pa.y);ctx.lineTo(pb.x,pb.y);
+    ctx.strokeStyle=color;ctx.lineWidth=lw;ctx.stroke();
+
+    // Метка значения на середине ребра
+    const mx=(pa.x+pb.x)/2,my=(pa.y+pb.y)/2;
+    const label=(s.value>0?'+':'')+s.value;
+    ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='#0a0c10';
+    ctx.fillRect(mx-14,my-7,28,14);
+    ctx.fillStyle=s.value>0?'#00ff88':'#ff3355';
+    ctx.fillText(label,mx,my);
+  });
+
+  // Рисуем узлы
+  nodes.forEach(c=>{
+    const p=positions[c.comp_id];
+    // Считаем суммарную синергию узла
+    let total=0;
+    syns.forEach(s=>{
+      if(s.comp_id_a===c.comp_id||s.comp_id_b===c.comp_id) total+=s.value;
+    });
+    const nodeColor=total>0?'#00e5ff':total<0?'#ff3355':'#7a9ab8';
+
+    ctx.beginPath();ctx.arc(p.x,p.y,18,0,2*Math.PI);
+    ctx.fillStyle='#0f1218';ctx.fill();
+    ctx.strokeStyle=nodeColor;ctx.lineWidth=2;ctx.stroke();
+
+    // Имя под узлом
+    ctx.font='bold 11px IBM Plex Sans,sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='top';
+    const name=p.name.length>10?p.name.substring(0,9)+'…':p.name;
+    ctx.fillStyle='rgba(10,12,16,0.8)';
+    const tw=ctx.measureText(name).width;
+    ctx.fillRect(p.x-tw/2-3,p.y+20,tw+6,14);
+    ctx.fillStyle='#c8d8e8';
+    ctx.fillText(name,p.x,p.y+21);
+
+    // ID внутри узла
+    const idText=c.comp_id.length>3?c.comp_id.substring(0,3):c.comp_id;
+    ctx.font='bold 10px monospace';ctx.textBaseline='middle';
+    ctx.fillStyle=nodeColor;ctx.fillText(idText,p.x,p.y);
+  });
+
+  // Легенда
+  ctx.font='11px IBM Plex Sans,sans-serif';ctx.textBaseline='middle';
+  const items=[['#00ff88','Синергия (+)'],['#ff3355','Антагонизм (−)'],['#00e5ff','Полож. баланс'],['#ff3355','Отриц. баланс']];
+  items.forEach((item,i)=>{
+    const x=20+i*155,y=H-18;
+    ctx.fillStyle=item[0];ctx.fillRect(x,y-5,16,10);
+    ctx.fillStyle='#7a9ab8';ctx.fillText(item[1],x+20,y);
+  });
+}
+
+let _synCache=[];  // кеш синергий для визуализации
+
+async function importSynCSV(){
+  const raw=document.getElementById('syn-csv').value.trim();
+  if(!raw){toast('Вставьте CSV данные','err');return;}
+  const lines=raw.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(lines.length<2){toast('Нужна минимум одна строка данных','err');return;}
+
+  const first=lines[0].toLowerCase();
+  const hasHeader=first.includes('comp_id')||first.includes('value')||isNaN(parseFloat(first.split(',')[2]));
+  const dataLines=hasHeader?lines.slice(1):lines;
+
+  let ok=0,fail=0,skipped=[];
+  for(const line of dataLines){
+    const parts=line.split(',').map(s=>s.trim());
+    if(parts.length<3){fail++;skipped.push(line+' <- мало полей');continue;}
+    const [rawA,rawB,vStr,...rest]=parts;
+    const v=parseFloat(vStr);
+    const note=rest.join(',').trim();
+    if(!rawA||!rawB||isNaN(v)){fail++;skipped.push(line+' <- некорректно');continue;}
+
+    const a=resolveSynId(rawA);
+    const b=resolveSynId(rawB);
+    if(!a){fail++;skipped.push(line+' <- не найден: '+rawA);continue;}
+    if(!b){fail++;skipped.push(line+' <- не найден: '+rawB);continue;}
+    if(a===b){fail++;skipped.push(line+' <- одинаковые');continue;}
+
+    try{
+      await api('/api/catalogs/'+_synCatId+'/synergies','POST',{comp_id_a:a,comp_id_b:b,value:v,note});
+      ok++;
+    }catch(e){fail++;skipped.push(line+' <- ошибка API');}
+  }
+  await refreshSyn();
+  if(fail===0){
+    toast('Импортировано: '+ok,'ok');
+    document.getElementById('syn-csv').value='';
+  } else {
+    toast('Ок: '+ok+', ошибок: '+fail,'err');
+    skipped.forEach(s=>console.warn(s));
+  }
+}
+async function loadProbs(){
+  custProbs=await api('/api/custom-problems');
+  const el=document.getElementById('prob-list');
+  if(!custProbs.length){el.innerHTML='<div class="empty"><div class="empty-ico">🎯</div><div class="empty-txt">Задач нет. Создайте первую.</div></div>';return;}
+  el.innerHTML=custProbs.map(p=>`
+    <div class="card" style="margin-bottom:12px">
+      <div class="fl aic gap10" style="margin-bottom:10px">
+        <div>
+          <div style="font-weight:600;font-size:14px">${p.name}</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">${p.description||''}</div>
+        </div>
+        <div class="fl gap6 mla">
+          <button class="btn btn-s btn-sm" onclick="previewProb(${p.id})">👁 Превью</button>
+          <button class="btn btn-p btn-sm" onclick="runCustProb(${p.id})">▶ Запустить</button>
+          <button class="btn-ico" onclick="openEditProb(${p.id})">✏️</button>
+          <button class="btn-ico btn-d" onclick="delProb(${p.id})">🗑</button>
+        </div>
+      </div>
+      <div class="fl gap6" style="flex-wrap:wrap">
+        <span class="chip chip-b">${p.catalog_icon||''} ${p.catalog_name}</span>
+        <span class="chip">выбрать ${p.config_size} из каталога</span>
+        <span class="chip chip-g">${(p.objectives||[]).length} критерия</span>
+        ${(p.constraints||[]).length?`<span class="chip">${p.constraints.length} ограничений</span>`:''}
+      </div>
+      ${(p.objectives||[]).length?`
+      <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        ${p.objectives.map((o,i)=>{
+          const colors=['#00e5ff','#00ff88','#ff8c00','#9b59ff'];
+          const c=colors[i%4];
+          const totalW=(p.objectives||[]).reduce((s,x)=>s+(parseFloat(x.weight)||1),0);
+          const pct=Math.round(((parseFloat(o.weight)||1)/totalW)*100);
+          return`<div style="background:${c}15;border:1px solid ${c}30;border-radius:6px;padding:4px 9px;font-size:11px">
+            <span style="color:${c};font-weight:600">${pct}%</span>
+            <span style="color:var(--text2);margin-left:4px">${o.label||o.param}</span>
+          </div>`;
+        }).join('')}
+      </div>`:''}
+    </div>`).join('');
+}
+
+async function previewProb(id){
+  try{
+    const p=await api('/api/custom-problems/'+id+'/preview');
+    const modal=document.createElement('div');
+    modal.className='mo open';
+    modal.innerHTML=`<div class="md">
+      <div class="md-t"><span>👁 Превью задачи</span><button class="md-x" onclick="this.closest('.mo').remove()">×</button></div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:14px">
+        Компонентов в каталоге: <b style="color:var(--text)">${p.components?.length||0}</b> &nbsp;·&nbsp;
+        Размер конфигурации: <b style="color:var(--accent)">${p.config_size}</b> &nbsp;·&nbsp;
+        Всего комбинаций: <b style="color:var(--text)">~${fmtBig(comb(p.components?.length||0,p.config_size))}</b>
+      </div>
+      <div style="margin-bottom:12px">
+        <div class="sec-title">Критерии</div>
+        ${(p.objective_names||[]).map((n,i)=>`
+          <div class="fl aic gap8" style="margin-bottom:6px">
+            <span style="font-size:12px;color:var(--text2);flex:1">${n}</span>
+            <span style="font-size:11px;color:var(--text3)">вес ${(p.weights||[])[i]?.toFixed(2)||'—'}</span>
+          </div>`).join('')}
+      </div>
+      ${p.constraint_names?.length?`<div>
+        <div class="sec-title">Ограничения</div>
+        ${p.constraint_names.map(n=>`<div style="font-size:12px;color:var(--text2);margin-bottom:4px">• ${n}</div>`).join('')}
+      </div>`:''}
+      <div class="md-f"><button class="btn btn-p" onclick="this.closest('.mo').remove()">Закрыть</button></div>
+    </div>`;
+    modal.addEventListener('click',e=>{if(e.target===modal)modal.remove();});
+    document.body.appendChild(modal);
+  }catch(e){toast('Ошибка превью: '+e.message,'err');}
+}
+
+function comb(n,k){if(k>n)return 0;let r=1;for(let i=0;i<k;i++){r=r*(n-i)/(i+1);}return Math.round(r);}
+function fmtBig(n){if(n>1e9)return(n/1e9).toFixed(1)+'B';if(n>1e6)return(n/1e6).toFixed(1)+'M';if(n>1e3)return(n/1e3).toFixed(1)+'K';return n;}
+function runCustProb(id){
+  nav('experiment');
+  document.getElementById('exp-src').value='custom';onSrcChange();
+  setTimeout(()=>{document.getElementById('cust-sel').value=id;chkReady();},300);
+}
+async function openNewProb(){
+  await loadCats();
+  _probSchema=[];_probTags=[];
+  document.getElementById('prob-eid').value='';
+  document.getElementById('mo-prob-t').textContent='Новая задача';
+  document.getElementById('prob-name').value='';
+  document.getElementById('prob-desc').value='';
+  document.getElementById('prob-sz').value='5';
+  document.getElementById('prob-cat').innerHTML='<option value="">— выберите —</option>'+cats.map(c=>`<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+  document.getElementById('obj-rows').innerHTML='';
+  document.getElementById('con-rows').innerHTML='';
+  addObj();openMo('mo-prob');
+}
+async function openEditProb(id){
+  try{
+    const p=await api('/api/custom-problems/'+id);
+    if(!p||p.error){toast('Не удалось загрузить задачу','err');return;}
+    await loadCats();
+    document.getElementById('prob-eid').value=id;
+    document.getElementById('mo-prob-t').textContent='Редактировать';
+    document.getElementById('prob-name').value=p.name;
+    document.getElementById('prob-desc').value=p.description||'';
+    document.getElementById('prob-sz').value=p.config_size;
+    document.getElementById('prob-cat').innerHTML='<option value="">— выберите —</option>'+cats.map(c=>`<option value="${c.id}" ${c.id==p.catalog_id?'selected':''}>${c.icon} ${c.name}</option>`).join('');
+    document.getElementById('obj-rows').innerHTML='';
+    document.getElementById('con-rows').innerHTML='';
+    // Сначала схема, потом строки
+    await onProbCatCh();
+    (p.objectives||[]).forEach(o=>addObj(o));
+    (p.constraints||[]).forEach(c=>addCon(c));
+    openMo('mo-prob');
+  }catch(e){
+    console.error('openEditProb error:',e);
+    toast('Ошибка: '+e.message,'err');
+  }
+}
+let _probSchema=[];  // кеш схемы для текущей задачи в модалке
+let _probTags=[];    // уникальные теги компонентов каталога
+
+async function onProbCatCh(){
+  const cid=document.getElementById('prob-cat').value;if(!cid)return;
+  _probSchema=await api('/api/catalogs/'+cid+'/schema');
+  // Собираем уникальные теги из компонентов
+  const comps=await api('/api/catalogs/'+cid+'/components');
+  const tagSet=new Set();
+  comps.forEach(c=>(c.tags||[]).forEach(t=>tagSet.add(t)));
+  _probTags=[...tagSet].sort();
+  refreshProbSelects();
+}
+
+function refreshProbSelects(){
+  // Опции для числовых параметров (критерии и param_agg ограничения)
+  const numOpts=[
+    '<option value="">— выберите —</option>',
+    '<option value="__synergy__">Синергия (матрица взаимодействий)</option>',
+    '<option value="__diversity__">Разнообразие тегов</option>',
+    ..._probSchema.map(s=>`<option value="${s.param_key}">${s.param_label}${s.param_unit?' ('+s.param_unit+')':''}</option>`)
+  ].join('');
+  // Опции для тегов (tag_required / tag_forbidden / count_tag)
+  const tagOpts=[
+    '<option value="">— выберите тег —</option>',
+    ..._probTags.map(t=>`<option value="${t}">${t}</option>`)
+  ].join('');
+
+  // Обновляем все существующие строки
+  document.querySelectorAll('.obj-p').forEach(s=>{const cv=s.value;s.innerHTML=numOpts;if(cv)s.value=cv;});
+  document.querySelectorAll('#con-rows .r-row').forEach(row=>updateConRow(row));
+}
+
+function updateConRow(row, preserveValues=true){
+  const typeEl=row.querySelector('.con-t');
+  const paramEl=row.querySelector('.con-p');
+  const aggEl=row.querySelector('.con-agg');
+  const opEl=row.querySelector('.con-op');
+  const valEl=row.querySelector('.con-val');
+  if(!typeEl||!paramEl)return;
+
+  const type=typeEl.value;
+  const isTag=['tag_required','tag_forbidden','count_tag'].includes(type);
+  const isCount=type==='count_tag';
+  const savedParam=preserveValues?paramEl.value:'';
+
+  if(isTag){
+    const tagOpts=['<option value="">— выберите тег —</option>',..._probTags.map(t=>`<option value="${t}">${t}</option>`)].join('');
+    paramEl.innerHTML=tagOpts;
+    paramEl.style.flex='2';
+    if(savedParam)paramEl.value=savedParam;
+  } else {
+    const numOpts=['<option value="">— выберите —</option>','<option value="__synergy__">Синергия</option>','<option value="__diversity__">🎲 Разнообразие тегов</option>',..._probSchema.map(s=>`<option value="${s.param_key}">${s.param_label}${s.param_unit?' ('+s.param_unit+')':''}</option>`)].join('');
+    paramEl.innerHTML=numOpts;
+    paramEl.style.flex='2';
+    if(savedParam)paramEl.value=savedParam;
+  }
+  // Показываем/скрываем agg, op, val
+  if(aggEl) aggEl.style.display=(isTag&&!isCount)?'none':'';
+  if(opEl)  opEl.style.display=(type==='tag_required'||type==='tag_forbidden')?'none':'';
+  if(valEl) valEl.style.display=(type==='tag_required'||type==='tag_forbidden')?'none':'';
+}
+function addObj(d={}){
+  const row=document.createElement('div');
+  row.style.cssText='background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:8px';
+  row.setAttribute('data-obj-row','1');
+  row.innerHTML=`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+      <div style="flex:2;min-width:140px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:.5px">ПАРАМЕТР</div>
+        <select class="obj-p form-s" style="width:100%">
+          <option value="">— выберите —</option>
+          <option value="__synergy__">Синергия (матрица)</option>
+          <option value="__diversity__">Разнообразие тегов</option>
+        </select>
+      </div>
+      <div style="min-width:90px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:.5px">АГРЕГАЦИЯ</div>
+        <select class="form-s" style="width:100%">
+          <option value="avg" ${d.agg==='avg'?'selected':''}>среднее</option>
+          <option value="sum" ${d.agg==='sum'?'selected':''}>сумма</option>
+          <option value="max" ${d.agg==='max'?'selected':''}>максимум</option>
+          <option value="min" ${d.agg==='min'?'selected':''}>минимум</option>
+        </select>
+      </div>
+      <div style="min-width:70px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:.5px">ВЕС</div>
+        <input type="number" class="form-i obj-weight" value="${d.weight||1}" min="0.01" max="10" step="0.1">
+      </div>
+      <div style="flex:1;min-width:100px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px;letter-spacing:.5px">НАЗВАНИЕ</div>
+        <input class="form-i" placeholder="Напр. Средний урон" value="${d.label||''}">
+      </div>
+      <button class="btn-ico" style="margin-top:16px;flex-shrink:0" onclick="this.closest('div[style]').remove()">✕</button>
+    </div>
+    <div class="obj-hint" style="font-size:11px;color:var(--text3)">Выберите параметр из каталога</div>`;
+  if(d.param){
+    const sel=row.querySelector('.obj-p');
+    sel.innerHTML+=`<option value="${d.param}" selected>${d.label||d.param}</option>`;
+    updateObjHint(sel);
+  }
+  row.querySelector('.obj-p').addEventListener('change',function(){updateObjHint(this);});
+  document.getElementById('obj-rows').appendChild(row);
+  // Заполняем параметры из текущей схемы
+  if(_probSchema.length) refreshProbSelects();
+  if(d.param){
+    const sel=row.querySelector('.obj-p');
+    // Если параметра нет в списке (старый или из другого каталога) — добавим его
+    if(![...sel.options].find(o=>o.value===d.param)){
+      sel.innerHTML+=`<option value="${d.param}" selected>${d.label||d.param}</option>`;
+    } else { sel.value=d.param; }
+    updateObjHint(sel);
+  }
+}
+
+function updateObjHint(sel){
+  const hint=sel.closest('div').parentElement?.querySelector('.obj-hint')||sel.closest('div[style]')?.querySelector('.obj-hint');
+  if(!hint)return;
+  const hints={
+    '':'Выберите параметр из каталога',
+    '__synergy__':'Сумма значений матрицы взаимодействий I для всех пар в конфигурации',
+    '__diversity__':'Количество уникальных значений тега — поощряет разнообразие ролей',
+    'avg':'Среднее арифметическое по всем компонентам конфигурации',
+    'sum':'Сумма значений параметра по всем компонентам',
+  };
+  hint.textContent=hints[sel.value]||`Параметр "${sel.options[sel.selectedIndex]?.text}" по выбранным компонентам`;
+}
+function addCon(d={}){
+  const type=d.type||'param_agg';
+  const isTag=['tag_required','tag_forbidden','count_tag'].includes(type);
+  const isCount=type==='count_tag';
+  const showAgg=!isTag||isCount;
+  const showOpVal=type!=='tag_required'&&type!=='tag_forbidden';
+
+  const row=document.createElement('div');
+  row.style.cssText='background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:8px';
+  row.setAttribute('data-obj-row','1');
+  row.innerHTML=`
+    <div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+      <div>
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ТИП</div>
+        <select class="con-t form-s" style="width:160px" onchange="updateConRow(this.closest('div[style]'))">
+          <option value="param_agg" ${type==='param_agg'?'selected':''}>Числовой параметр</option>
+          <option value="tag_required" ${type==='tag_required'?'selected':''}>Обязателен тег</option>
+          <option value="tag_forbidden" ${type==='tag_forbidden'?'selected':''}>Запрещён тег</option>
+          <option value="count_tag" ${type==='count_tag'?'selected':''}>Кол-во с тегом</option>
+        </select>
+      </div>
+      <div style="flex:2;min-width:120px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ПАРАМЕТР / ТЕГ</div>
+        <select class="con-p form-s" style="width:100%"><option value="">— выберите —</option></select>
+      </div>
+      <div class="con-agg-wrap" style="display:${showAgg?'block':'none'}">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">АГРЕГ.</div>
+        <select class="con-agg form-s" style="width:80px">
+          <option value="sum" ${d.agg==='sum'?'selected':''}>сумма</option>
+          <option value="avg" ${d.agg==='avg'?'selected':''}>среднее</option>
+        </select>
+      </div>
+      <div class="con-op-wrap" style="display:${showOpVal?'flex':'none'};align-items:flex-end;gap:6px">
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ОП.</div>
+          <select class="con-op form-s" style="width:58px">
+            <option value="<=" ${d.op==='<='?'selected':''}>≤</option>
+            <option value=">=" ${d.op==='>='?'selected':''}>≥</option>
+            <option value="==" ${d.op==='=='?'selected':''}>=</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ЗНАЧЕНИЕ</div>
+          <input type="number" class="con-val form-i" value="${d.value||0}" style="width:72px">
+        </div>
+      </div>
+      <div style="flex:1;min-width:80px">
+        <div style="font-size:10px;color:var(--text3);margin-bottom:4px">ОПИСАНИЕ</div>
+        <input class="con-lbl form-i" placeholder="Необязательно" value="${d.label||''}">
+      </div>
+      <button class="btn-ico" style="flex-shrink:0" onclick="this.closest('div[style]').remove()">✕</button>
+    </div>`;
+
+  document.getElementById('con-rows').appendChild(row);
+
+  // Заполняем параметры и теги
+  updateConRow(row, false);
+
+  // Восстанавливаем сохранённое значение
+  if(d.param){
+    const sel=row.querySelector('.con-p');
+    if(![...sel.options].find(o=>o.value===d.param)){
+      sel.innerHTML+=`<option value="${d.param}" selected>${d.param}</option>`;
+    } else { sel.value=d.param; }
+  }
+}
+async function saveProb(){
+  const id=document.getElementById('prob-eid').value;
+  const name=document.getElementById('prob-name').value.trim();
+  const cat=document.getElementById('prob-cat').value;
+  if(!name||!cat){toast('Заполните название и каталог','err');return;}
+
+  // Собираем критерии — ищем любой дочерний div с .obj-p внутри #obj-rows
+  const objectives=[...document.querySelectorAll('#obj-rows [data-obj-row]')]
+    .map(row=>{
+      const sel=row.querySelector('.obj-p');
+      if(!sel||!sel.value) return null;
+      const selects=[...row.querySelectorAll('select')];
+      const aggSel=selects.find(s=>s!==sel);
+      const weightEl=row.querySelector('.obj-weight');
+      const labelEl=row.querySelector('input:not([type=number])');
+      return{
+        param:sel.value,
+        agg:aggSel?.value||'avg',
+        weight:parseFloat(weightEl?.value)||1,
+        label:labelEl?.value||sel.options[sel.selectedIndex]?.text||sel.value
+      };
+    }).filter(o=>o&&o.param);
+
+  // Собираем ограничения
+  const constraints=[...document.querySelectorAll('#con-rows .con-t')]
+    .map(typeEl=>{
+      const row=typeEl.closest('div[style]');
+      return{
+        type:typeEl.value,
+        param:row.querySelector('.con-p')?.value||'',
+        agg:row.querySelector('.con-agg')?.value||'sum',
+        op:row.querySelector('.con-op')?.value||'<=',
+        value:parseFloat(row.querySelector('.con-val')?.value)||0,
+        label:row.querySelector('.con-lbl')?.value||''
+      };
+    }).filter(c=>c.param);
+
+  if(!objectives.length){toast('Добавьте хотя бы один критерий и выберите параметр','err');return;}
+
+  const body={name,description:document.getElementById('prob-desc').value,catalog_id:cat,
+    config_size:parseInt(document.getElementById('prob-sz').value),objectives,constraints};
+  if(id){await api('/api/custom-problems/'+id,'PUT',body);toast('Обновлено','ok');}
+  else{await api('/api/custom-problems','POST',body);toast('Создано','ok');}
+  closeMo('mo-prob');loadProbs();
+}
+async function delProb(id){if(!confirm('Удалить задачу?'))return;await api('/api/custom-problems/'+id,'DELETE');toast('Удалено');loadProbs();}
+
+// ── EXPERIMENT ─────────────────────────────────────────────────────────────────
+function onSrcChange(){
+  const s=document.getElementById('exp-src').value;
+  document.getElementById('src-builtin').style.display=s==='builtin'?'':'none';
+  document.getElementById('src-custom').style.display=s==='custom'?'':'none';
+  chkReady();
+}
+async function loadCustForExp(){
+  custProbs=await api('/api/custom-problems');
+  const sel=document.getElementById('cust-sel');
+  sel.innerHTML='<option value="">— выберите —</option>'+custProbs.map(p=>`<option value="${p.id}">${p.catalog_icon||''} ${p.name}</option>`).join('');
+  chkReady();
+}
+function chkReady(){
+  const src=document.getElementById('exp-src').value;
+  const ok=src==='builtin'?!!document.getElementById('dom-sel').value:!!document.getElementById('cust-sel').value;
+  const algOk=algs.some(a=>document.getElementById('ac-'+a.id)?.checked);
+  document.getElementById('run-btn').disabled=!(ok&&algOk);
+  if(ok) setTimeout(updateAlgRecommendation, 50);
+}
+function renderAlgs(){
+  document.getElementById('alg-list').innerHTML=algs.map(a=>{
+    const c=AC[a.id]||'#00e5ff';
+    const params=Object.entries(a.params_schema).filter(([,s])=>s.type!=='bool').map(([k,s])=>`
+      <div style="display:flex;align-items:center;gap:8px;margin-top:7px">
+        <span style="font-size:11px;color:var(--text2);flex:1">${s.label}</span>
+        <input type="number" id="ap-${a.id}-${k}" value="${s.default}" min="${s.min||0}" max="${s.max||999}" step="${s.type==='float'?0.05:1}"
+          style="width:68px;background:var(--bg2);border:1px solid var(--border2);border-radius:5px;padding:4px 6px;color:var(--text);font-size:12px;text-align:right;outline:none">
+      </div>`).join('');
+    return`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:5px">
+      <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;cursor:pointer" onclick="togAlg('${a.id}')">
+        <input type="checkbox" id="ac-${a.id}" ${a.id==='GA'||a.id==='PSO'?'checked':''} onchange="chkReady()" onclick="event.stopPropagation()" style="accent-color:${c};width:14px;height:14px;cursor:pointer">
+        <span style="width:7px;height:7px;border-radius:50%;background:${c};display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:13px;font-weight:500;flex:1">${a.name}</span>
+        <span style="font-size:10px;color:var(--text3)" id="at-${a.id}">▾</span>
+      </div>
+      <div id="ap-block-${a.id}" style="display:none;padding:0 11px 9px;border-top:1px solid var(--border)">${params}</div>
+    </div>`;
+  }).join('');
+}
+function togAlg(id){
+  const p=document.getElementById('ap-block-'+id),t=document.getElementById('at-'+id);
+  const o=p.style.display==='none';p.style.display=o?'':'none';t.textContent=o?'▴':'▾';
+}
+async function runExp(){
+  const src=document.getElementById('exp-src').value;
+  const n_runs=parseInt(document.getElementById('n-runs').value);
+  const max_evals=parseInt(document.getElementById('mx-ev').value);
+  const selAlgs=algs.filter(a=>document.getElementById('ac-'+a.id)?.checked).map(a=>{
+    const params={};
+    Object.entries(a.params_schema).forEach(([k,s])=>{if(s.type!=='bool'){const el=document.getElementById('ap-'+a.id+'-'+k);if(el)params[k]=parseFloat(el.value);}});
+    return{id:a.id,params};
+  });
+  const body={algorithms:selAlgs,n_runs,max_evals};
+  if(src==='builtin'){body.domain_id=document.getElementById('dom-sel').value;body.config_size=parseInt(document.getElementById('cfg-sz').value);}
+  else body.custom_problem_id=document.getElementById('cust-sel').value;
+  const btn=document.getElementById('run-btn');
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> Запуск...';
+  showProg(selAlgs.map(a=>a.id));
+  const r=await api('/api/experiments','POST',body);curExpId=r.experiment_id;
+  if(evSrc)evSrc.close();
+  evSrc=new EventSource('/api/experiments/'+curExpId+'/stream');
+  let done=0,total=selAlgs.length*n_runs;
+  evSrc.onmessage=e=>{
+    const msg=JSON.parse(e.data);
+    if(msg.status==='done'){evSrc.close();loadRes(curExpId);btn.disabled=false;btn.textContent='▶ Запустить';}
+    else if(msg.status==='error'){evSrc.close();showErr(msg.error);btn.disabled=false;btn.textContent='▶ Запустить';}
+    else if(msg.algorithm){done++;updProg(++done-1,total,msg);}
+  };
+}
+function showProg(){document.getElementById('res-area').innerHTML=`<div class="card"><h3>⟳ Выполнение</h3><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px"><span id="pl">Инициализация...</span><span id="pp">0%</span></div><div class="pbw"><div class="pb" id="pb" style="width:0%"></div></div><div class="plog" id="plog"></div></div>`;}
+function updProg(done,total,msg){
+  const pct=Math.round(done/total*100);
+  const pb=document.getElementById('pb');if(pb)pb.style.width=pct+'%';
+  const pl=document.getElementById('pl');if(pl)pl.textContent=msg.algorithm+' · run#'+msg.run_id+' · '+(msg.fitness?.toFixed(4));
+  const pp=document.getElementById('pp');if(pp)pp.textContent=pct+'%';
+  const plog=document.getElementById('plog');
+  if(plog){const c=AC[msg.algorithm]||'#00e5ff';plog.innerHTML+=`<div><span style="color:${c}">[${msg.algorithm}]</span> run#${msg.run_id} → <b style="color:var(--green)">${msg.fitness?.toFixed(4)}</b> (${msg.elapsed?.toFixed(2)}s)</div>`;plog.scrollTop=plog.scrollHeight;}
+}
+function showErr(e){document.getElementById('res-area').innerHTML=`<div class="card"><h3 style="color:var(--red)">❌ Ошибка</h3><pre style="font-size:11px;color:var(--text2);white-space:pre-wrap">${e}</pre></div>`;}
+// История запусков (в памяти сессии)
+let _runHistory=[];
+
+async function loadRes(id){
+  const exp=await api('/api/experiments/'+id);
+  if(exp.status!=='done')return;
+  const area=document.getElementById('res-area');area.innerHTML='';
+  _lastExpForShapley = exp;  // сохраняем для Шепли
+
+  // Проверяем не все ли результаты -1e9 (нарушение ограничений)
+  const allInfeasible = exp.summary?.every(s => s.best <= -1e8);
+  if(allInfeasible){
+    area.innerHTML=`<div class="card" style="border-color:var(--red)">
+      <div style="font-size:22px;margin-bottom:12px">⚠️</div>
+      <h3 style="color:var(--red);margin-bottom:10px">Нет допустимых решений (fitness = −1 млрд)</h3>
+      <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px">
+        Все алгоритмы вернули штрафное значение <code style="color:var(--red)">−1e9</code> — это означает что <b>ни одна конфигурация не прошла проверку ограничений</b>.
+      </p>
+      <div style="background:var(--bg3);border-radius:8px;padding:14px;margin-bottom:14px">
+        <div class="sec-title">Возможные причины:</div>
+        <div style="font-size:13px;color:var(--text2);line-height:2">
+          • Ограничение слишком жёсткое — ни одна комбинация не проходит<br>
+          • Размер конфигурации слишком большой для заданного бюджета<br>
+          • Обязательный тег/параметр отсутствует у всех компонентов<br>
+          • Ключ параметра в ограничении не совпадает с ключом в каталоге
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--text2)">
+        <b>Что сделать:</b> откройте задачу → 👁 Превью и проверьте ограничения.
+        Попробуйте временно убрать все ограничения и запустить снова — если fitness станет нормальным, проблема в ограничениях.
+      </div>
+    </div>`;
+    document.getElementById('run-btn').disabled=false;
+    document.getElementById('run-btn').textContent='▶ Запустить';
+    toast('Нарушены ограничения — нет допустимых решений','err');
+    return;
+  }
+
+  // Определяем имя-поле из схемы каталога
+  // Приоритет: hero_name/name/title → первое текстовое поле схемы → первый строковый param → comp_id
+  const nameField=curSchema?.find(s=>['hero_name','name','title','character_name','имя'].includes(s.param_key))
+    || curSchema?.find(s=>s.param_type==='text');
+  const getCompName=c=>{
+    if(nameField&&c.params?.[nameField.param_key]) return c.params[nameField.param_key];
+    // Фоллбэк: ищем любой строковый param который не похож на число
+    const strVal=Object.entries(c.params||{}).find(([k,v])=>typeof v==='string'&&v.length>1&&isNaN(v));
+    return strVal?strVal[1]:c.id;
+  };
+
+  // Сохраняем в историю
+  _runHistory.unshift({id,ts:new Date().toLocaleTimeString(),
+    problem:exp.problem_info?.name||'—',
+    best:exp.best_run?.best_fitness,alg:exp.best_run?.algorithm,
+    exp});
+  if(_runHistory.length>10)_runHistory.pop();
+  renderHistory();
+
+  // ── Сводная таблица ──────────────────────────────────────────────────
+  const bf=Math.max(...exp.summary.map(s=>s.best));
+  const sd=document.createElement('div');sd.className='card';sd.style.marginBottom='14px';
+  sd.innerHTML=`
+    <div class="fl aic gap10" style="margin-bottom:14px">
+      <h3 style="margin:0">📊 Сравнение алгоритмов</h3>
+      <div class="fl gap6 mla">
+        <button class="btn btn-s btn-sm" onclick="exportCSV()">⬇ CSV</button>
+      </div>
+    </div>
+    <table class="st"><thead><tr><th>Алгоритм</th><th>Лучшее</th><th>Среднее</th><th>Худшее</th><th>StdDev</th><th>Время</th></tr></thead><tbody>
+    ${exp.summary.map(s=>{const c=AC[s.algorithm]||'#00e5ff';return`<tr>
+      <td><span class="ab" style="background:${c}20;color:${c};border:1px solid ${c}40">${s.algorithm}</span></td>
+      <td class="${s.best===bf?'fb':''}" style="font-family:monospace">${s.best.toFixed(4)}${s.best===bf?' ★':''}</td>
+      <td style="font-family:monospace">${s.mean.toFixed(4)}</td>
+      <td style="font-family:monospace;color:var(--text2)">${s.worst.toFixed(4)}</td>
+      <td style="font-family:monospace;color:var(--text3)">${s.std.toFixed(4)}</td>
+      <td style="font-family:monospace;color:var(--text3)">${s.mean_time.toFixed(2)}s</td>
+    </tr>`;}).join('')}
+    </tbody></table>`;
+  area.appendChild(sd);
+
+  // ── График сходимости ────────────────────────────────────────────────
+  const cd=document.createElement('div');cd.className='card';cd.style.marginBottom='14px';
+  cd.innerHTML='<h3>📈 Сходимость</h3><canvas id="cc" height="220"></canvas>';
+  area.appendChild(cd);setTimeout(()=>drawConv(exp.results,document.getElementById('cc')),60);
+
+  // ── Лучшее решение ────────────────────────────────────────────────────
+  if(exp.best_run){
+    const br=exp.best_run,pi=exp.problem_info||{},on=pi.objective_names||[],ow=pi.weights||[];
+    const bd=document.createElement('div');bd.className='card';
+
+    // Шкалы по критериям (нормализованные к максимуму)
+    const objBars=br.objective_vector?.length?`
+      <div style="margin-bottom:18px">
+        <div class="sec-title">Значения критериев</div>
+        ${br.objective_vector.map((v,i)=>{
+          const mx=Math.max(...br.objective_vector.filter(x=>x>0))||1;
+          const pct=Math.max(0,Math.min(100,(v/mx)*100));
+          const colors=['#00e5ff','#00ff88','#ff8c00','#9b59ff'];
+          const c=colors[i%4];
+          // ow содержит нормализованные веса [0..1] из problem_info.weights
+          // Если вес есть — показываем его, иначе равномерно
+          const wRaw = ow[i];
+          const wPct = wRaw!=null ? Math.round(wRaw*100) : Math.round(100/br.objective_vector.length);
+          return`<div style="margin-bottom:10px">
+            <div class="fl aic gap8" style="margin-bottom:4px">
+              <span style="font-size:12px;color:var(--text);font-weight:500">${on[i]||'f'+i}</span>
+              <span style="font-size:10px;color:var(--text3)">вес ${wPct}%</span>
+              <span style="font-family:monospace;font-size:12px;color:${c};mla;margin-left:auto">${v.toFixed(3)}</span>
+            </div>
+            <div style="background:var(--bg3);border-radius:4px;height:8px;overflow:hidden">
+              <div style="height:100%;border-radius:4px;background:${c};width:${pct}%;transition:width 1s ease"></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`:' ';
+
+    // Карточки состава с именами
+    const compCards=(exp.best_config_detail||[]).map(c=>{
+      const displayName=getCompName(c);
+      const isNamed=displayName!==c.id;
+      return`<div style="background:var(--bg3);border:1px solid var(--border2);border-radius:9px;padding:12px;position:relative">
+        ${isNamed?`<div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px">${displayName}</div>`:''}
+        <div style="font-family:monospace;color:var(--accent);font-size:11px;margin-bottom:7px">${c.id}</div>
+        <div style="font-size:11px;color:var(--text2);line-height:1.8">
+          ${Object.entries(c.params||{}).map(([k,v])=>`<span style="color:var(--text3)">${k}:</span> <span style="color:var(--text)">${v}</span>`).join(' &nbsp;')}
+        </div>
+        ${(c.tags||[]).length?`<div style="margin-top:6px">${c.tags.map(t=>`<span class="tag-p">${t}</span>`).join('')}</div>`:''}
+      </div>`;
+    }).join('');
+
+    bd.innerHTML=`
+      <div class="fl aic gap12" style="margin-bottom:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">ЛУЧШИЙ АЛГОРИТМ</div>
+          <span class="ab" style="background:${AC[br.algorithm]||'#00e5ff'}20;color:${AC[br.algorithm]||'#00e5ff'};border:1px solid ${AC[br.algorithm]||'#00e5ff'}40;font-size:14px;padding:4px 12px">${br.algorithm}</span>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">FITNESS</div>
+          <div style="font-family:'Unbounded',sans-serif;font-size:26px;font-weight:800;color:var(--green)">${br.best_fitness.toFixed(4)}</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">ВРЕМЯ</div>
+          <div style="font-family:monospace;font-size:15px">${br.elapsed_sec}s</div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--text3);margin-bottom:3px">СОСТАВ</div>
+          <div style="font-family:monospace;font-size:15px">${exp.best_config_detail?.length||0} компонентов</div>
+        </div>
+      </div>
+      ${objBars}
+      <div class="sec-title">Оптимальный состав</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px">
+        ${compCards}
+      </div>
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+        <button class="btn btn-s" id="shapley-btn" onclick="runShapley()">
+          ⚖ Вычислить значения Шепли
+        </button>
+        <span style="font-size:11px;color:var(--text3);margin-left:10px">
+          Средний маргинальный вклад каждого участника в итоговый fitness
+        </span>
+      </div>
+      <div id="shapley-result" style="margin-top:12px"></div>`;
+    area.appendChild(bd);
+  }
+  toast('Готово! Fitness: '+(exp.best_run?.best_fitness?.toFixed(4)),'ok');
+  const hb=document.getElementById('history-block');
+  if(hb&&_runHistory.length>0)hb.style.display='';
+}
+
+function renderHistory(){
+  let el=document.getElementById('run-history');
+  if(!el||!_runHistory.length)return;
+  el.innerHTML=_runHistory.map((r,i)=>`
+    <div class="fl aic gap8" style="padding:7px 10px;background:${i===0?'var(--bg4)':'transparent'};border-radius:6px;cursor:pointer" onclick="loadRes('${r.id}')">
+      <span style="font-size:10px;color:var(--text3);min-width:45px">${r.ts}</span>
+      <span style="font-size:12px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.problem}</span>
+      ${r.best!=null?`<span style="font-family:monospace;font-size:11px;color:var(--green)">${r.best.toFixed(3)}</span>`:''}
+      <span style="font-size:10px;color:var(--text3)">${r.alg||''}</span>
+    </div>`).join('');
+}
+
+function exportCSV(){
+  if(!_runHistory.length)return;
+  const exp=_runHistory[0].exp;
+  if(!exp)return;
+  const on=exp.problem_info?.objective_names||[];
+  const nameFieldKey=(curSchema?.find(s=>['hero_name','name','title'].includes(s.param_key))
+    ||curSchema?.find(s=>s.param_type==='text'))?.param_key;
+  const rows=[['Алгоритм','Fitness','Время(s)','Компоненты',...on].join(',')];
+  (exp.results||[]).forEach(r=>{
+    const names=(r.best_config_ids||[]).map(id=>{
+      const c=exp.best_config_detail?.find(x=>x.id===id);
+      if(!c) return id;
+      if(nameFieldKey&&c.params?.[nameFieldKey]) return c.params[nameFieldKey];
+      const strVal=Object.entries(c.params||{}).find(([k,v])=>typeof v==='string'&&v.length>1&&isNaN(v));
+      return strVal?strVal[1]:id;
+    }).join(';');
+    rows.push([r.algorithm,r.best_fitness?.toFixed(4),r.elapsed_sec,'"'+names+'"'].join(','));
+  });
+  const blob=new Blob([rows.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='metaopt_results_'+Date.now()+'.csv';a.click();
+}
+function drawConv(results, canvas){
+  const W = canvas.offsetWidth || 580;
+  const H = 280;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // Фон
+  ctx.fillStyle = '#0f1218'; ctx.fillRect(0, 0, W, H);
+
+  const pad = {t: 24, r: 24, b: 48, l: 62};
+  const cW = W - pad.l - pad.r;
+  const cH = H - pad.t - pad.b;
+
+  // Группируем по алгоритму, берём лучшую кривую по каждому запуску
+  const byA = {};
+  results.forEach(r => {
+    if (!byA[r.algorithm]) byA[r.algorithm] = [];
+    byA[r.algorithm].push(r);
+  });
+
+  const series = Object.entries(byA).map(([alg, runs]) => {
+    const ml = Math.max(...runs.map(r => r.convergence.length));
+    const best = Array(ml).fill(-Infinity);
+    runs.forEach(r => r.convergence.forEach((v, i) => { best[i] = Math.max(best[i], v); }));
+    // Сглаживаем: накопленный максимум (кривая только растёт)
+    for(let i=1;i<best.length;i++) best[i]=Math.max(best[i],best[i-1]);
+    return { label: alg, color: AC[alg] || '#00e5ff', data: best };
+  }).filter(s => s.data.length);
+
+  if (!series.length) return;
+
+  const allVals = series.flatMap(s => s.data).filter(v => v > -1e8);
+  if (!allVals.length) return;
+  let mn = Math.min(...allVals), mx = Math.max(...allVals);
+  if (mn === mx) { mn -= 0.5; mx += 0.5; }
+  const rng = mx - mn;
+  mn -= rng * 0.08; mx += rng * 0.05;
+  const ml = Math.max(...series.map(s => s.data.length));
+
+  // Сетка
+  const gridSteps = 5;
+  ctx.strokeStyle = '#1a2436'; ctx.lineWidth = 1;
+  for (let i = 0; i <= gridSteps; i++) {
+    const y = pad.t + cH - (i / gridSteps) * cH;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + cW, y); ctx.stroke();
+    const val = mn + (i / gridSteps) * (mx - mn);
+    ctx.fillStyle = '#4a6680'; ctx.font = '10px JetBrains Mono,monospace';
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(val.toFixed(2), pad.l - 6, y);
+  }
+
+  // Вертикальные метки оси X
+  const xSteps = Math.min(6, ml);
+  for (let i = 0; i <= xSteps; i++) {
+    const x = pad.l + (i / xSteps) * cW;
+    const val = Math.round((i / xSteps) * ml);
+    ctx.fillStyle = '#4a6680'; ctx.font = '10px JetBrains Mono,monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    ctx.fillText(val, x, pad.t + cH + 6);
+    if (i > 0 && i < xSteps) {
+      ctx.strokeStyle = '#1a2436'; ctx.lineWidth = 0.5;
+      ctx.beginPath(); ctx.moveTo(x, pad.t); ctx.lineTo(x, pad.t + cH); ctx.stroke();
+    }
+  }
+
+  // Оси
+  ctx.strokeStyle = '#2a3a52'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(pad.l, pad.t); ctx.lineTo(pad.l, pad.t + cH);
+  ctx.lineTo(pad.l + cW, pad.t + cH);
+  ctx.stroke();
+
+  // Подпись осей
+  ctx.fillStyle = '#4a6680'; ctx.font = '10px IBM Plex Sans,sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+  ctx.fillText('Вычисления (evals)', pad.l + cW / 2, H - 2);
+  ctx.save(); ctx.translate(12, pad.t + cH / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('Fitness', 0, 0);
+  ctx.restore();
+
+  // Кривые
+  series.forEach(s => {
+    ctx.strokeStyle = s.color; ctx.lineWidth = 2.5;
+    ctx.shadowColor = s.color; ctx.shadowBlur = 4;
+    ctx.beginPath();
+    let first = true;
+    s.data.forEach((v, i) => {
+      if (v <= -1e8) return;
+      const x = pad.l + (i / (ml - 1 || 1)) * cW;
+      const y = pad.t + cH - ((v - mn) / (mx - mn)) * cH;
+      first ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      first = false;
+    });
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+
+    // Точка финального значения
+    const lastVal = [...s.data].reverse().find(v => v > -1e8);
+    if (lastVal !== undefined) {
+      const x = pad.l + cW;
+      const y = pad.t + cH - ((lastVal - mn) / (mx - mn)) * cH;
+      ctx.beginPath(); ctx.arc(x, y, 4, 0, 2*Math.PI);
+      ctx.fillStyle = s.color; ctx.fill();
+    }
+  });
+
+  // Легенда — горизонтальная внизу
+  const legY = H - 14;
+  const legItemW = Math.min(110, (W - pad.l) / series.length);
+  series.forEach((s, i) => {
+    const lx = pad.l + i * legItemW;
+    ctx.fillStyle = s.color;
+    ctx.fillRect(lx, legY - 5, 20, 3);
+    ctx.beginPath(); ctx.arc(lx + 10, legY - 3.5, 3, 0, 2*Math.PI); ctx.fill();
+    ctx.fillStyle = '#c8d8e8'; ctx.font = 'bold 11px IBM Plex Sans,sans-serif';
+    ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(s.label, lx + 24, legY - 3);
+  });
+
+  // Тултип при наведении
+  canvas._series = series; canvas._pad = pad; canvas._cW = cW; canvas._cH = cH;
+  canvas._mn = mn; canvas._mx = mx; canvas._ml = ml;
+  if (!canvas._tooltipBound) {
+    canvas._tooltipBound = true;
+    canvas.addEventListener('mousemove', function(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const mx2 = (e.clientX - rect.left) * scaleX;
+      const {_series, _pad, _cW, _cH, _mn, _mx, _ml} = canvas;
+      if (!_series) return;
+      const idx = Math.round((_ml - 1) * Math.max(0, Math.min(1, (mx2 - _pad.l) / _cW)));
+      drawConvTooltip(canvas, idx);
+    });
+    canvas.addEventListener('mouseleave', function() {
+      // Перерисовываем без тултипа
+      const {_series, _pad, _cW, _cH, _mn, _mx, _ml} = canvas;
+      if (_series) drawConv(canvas._origResults, canvas);
+    });
+    canvas._origResults = results;
+  }
+}
+
+function drawConvTooltip(canvas, idx) {
+  // Перерисуем базовый график, потом наложим тултип
+  drawConv(canvas._origResults, canvas);
+  const {_series, _pad, _cW, _cH, _mn, _mx, _ml} = canvas;
+  const ctx = canvas.getContext('2d');
+  const x = _pad.l + (idx / (_ml - 1 || 1)) * _cW;
+
+  // Вертикальная линия курсора
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(x, _pad.t); ctx.lineTo(x, _pad.t + _cH); ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Тултип-блок
+  const lines = _series.map(s => {
+    const v = s.data[Math.min(idx, s.data.length - 1)];
+    return { label: s.label, color: s.color, val: v > -1e8 ? v.toFixed(4) : '—' };
+  });
+  const tw = 150, th = 16 + lines.length * 18;
+  let tx = x + 10; let ty = _pad.t + 10;
+  if (tx + tw > canvas.width - 10) tx = x - tw - 10;
+
+  ctx.fillStyle = 'rgba(15,18,24,0.92)';
+  ctx.strokeStyle = '#253040'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.roundRect(tx, ty, tw, th, 6); ctx.fill(); ctx.stroke();
+
+  ctx.fillStyle = '#7a9ab8'; ctx.font = '10px monospace';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText(`eval #${idx}`, tx + 8, ty + 5);
+
+  lines.forEach((l, i) => {
+    const ly = ty + 16 + i * 18;
+    ctx.fillStyle = l.color; ctx.fillRect(tx + 8, ly + 4, 12, 3);
+    ctx.fillStyle = '#c8d8e8'; ctx.font = '11px IBM Plex Sans,sans-serif';
+    ctx.fillText(l.label, tx + 26, ly);
+    ctx.fillStyle = l.color; ctx.font = 'bold 11px monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText(l.val, tx + tw - 8, ly);
+    ctx.textAlign = 'left';
+  });
+}
+
+// ── EXAMPLES ───────────────────────────────────────────────────────────────────
+function renderExamples(){
+  document.getElementById('ex-cards').innerHTML=builtins.map(d=>`
+    <div class="card card-click" onclick="runBuiltin('${d.id}')">
+      <div style="font-size:26px;margin-bottom:9px">${d.icon}</div>
+      <div style="font-weight:600;font-size:14px;margin-bottom:5px">${d.name}</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:11px">${d.description}</div>
+      <div class="fl gap6" style="flex-wrap:wrap">
+        <span class="chip chip-b">${d.n_components} компонентов</span>
+        <span class="chip">${d.n_objectives} критерия</span>
+        <span class="chip">${d.n_constraints} ограничения</span>
+      </div>
+    </div>`).join('');
+}
+function runBuiltin(id){nav('experiment');document.getElementById('exp-src').value='builtin';onSrcChange();document.getElementById('dom-sel').value=id;chkReady();}
+
+// ── MODAL HELPERS ──────────────────────────────────────────────────────────────
+function openMo(id){document.getElementById(id).classList.add('open');}
+function closeMo(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.mo').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// ── TOAST ──────────────────────────────────────────────────────────────────────
+function toast(msg,type=''){const t=document.getElementById('toast');t.textContent=msg;t.className='show '+type;setTimeout(()=>{t.className=''},3200);}
+
+// ── BOOT ───────────────────────────────────────────────────────────────────────
+// ── ЗНАЧЕНИЯ ШЕПЛИ ────────────────────────────────────────────────────────────
+let _lastExpForShapley = null;
+
+async function runShapley(){
+  const btn = document.getElementById('shapley-btn');
+  const el  = document.getElementById('shapley-result');
+  if(!_lastExpForShapley){toast('Сначала запустите эксперимент','err');return;}
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Вычисляю...';
+  el.innerHTML  = '';
+
+  const exp  = _lastExpForShapley;
+  const br   = exp.best_run;
+  const ids  = br?.best_config_ids || [];
+
+  const body = {config_ids: ids, method: 'auto', n_samples: 512};
+  if(exp.config?.custom_problem_id) body.custom_problem_id = exp.config.custom_problem_id;
+  else { body.domain_id = exp.config?.domain_id; body.config_size = exp.config?.config_size; }
+
+  try{
+    const r = await api('/api/shapley','POST', body);
+    if(r.error){toast('Ошибка Шепли: '+r.error,'err');return;}
+    renderShapley(r, el);
+    btn.innerHTML = '⚖ Пересчитать значения Шепли';
+  }catch(e){
+    toast('Ошибка: '+e.message,'err');
+    btn.innerHTML = '⚖ Вычислить значения Шепли';
+  }
+  btn.disabled = false;
+}
+
+function renderShapley(data, el){
+  const vals   = data.shapley_values || [];
+  const method = data.method_used === 'exact' ? 'точный расчёт' : 'Монте-Карло';
+  const maxPhi = Math.max(...vals.map(v=>Math.abs(v.shapley)), 0.001);
+
+  el.innerHTML = `
+    <div style="margin-bottom:10px">
+      <span class="sec-title">⚖ Значения Шепли</span>
+      <span style="font-size:11px;color:var(--text3);margin-left:8px">${method}, ${data.n_players} игроков</span>
+    </div>
+    ${vals.map((v,i)=>{
+      const isPos = v.shapley >= 0;
+      const barW  = Math.min(100, Math.abs(v.shapley) / maxPhi * 100);
+      const color = isPos ? 'var(--green)' : 'var(--red)';
+      const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+      return `
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;background:var(--bg3);border-radius:8px;padding:10px 14px">
+          <div style="min-width:22px;font-size:14px">${medal||'<span style="font-family:monospace;font-size:11px;color:var(--text3)">#'+v.rank+'</span>'}</div>
+          <div style="flex:0 0 140px;overflow:hidden">
+            <div style="font-weight:600;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.name}</div>
+            <div style="font-family:monospace;font-size:10px;color:var(--text3)">${v.comp_id}</div>
+          </div>
+          <div style="flex:1;position:relative;height:20px;background:var(--bg4);border-radius:4px;overflow:hidden">
+            <div style="position:absolute;${isPos?'left:0':'right:0'};height:100%;width:${barW}%;background:${color};border-radius:4px;transition:width 1s ease"></div>
+          </div>
+          <div style="min-width:70px;text-align:right">
+            <span style="font-family:monospace;font-size:13px;font-weight:600;color:${color}">${isPos?'+':''}${v.shapley.toFixed(3)}</span>
+          </div>
+          <div style="min-width:44px;text-align:right">
+            <span style="font-size:11px;color:var(--text3)">${v.shapley_pct.toFixed(1)}%</span>
+          </div>
+        </div>`;
+    }).join('')}
+    <div style="font-size:11px;color:var(--text3);margin-top:6px;padding:8px 14px;background:var(--bg3);border-radius:6px">
+      φᵢ — средний маргинальный вклад участника при всех порядках вхождения в команду.
+      ${vals.some(v=>v.shapley<0)?'<span style="color:var(--red)">Отрицательное значение</span> означает что участник в среднем снижает fitness команды из-за антагонизмов.':''}
+    </div>
+`;
+
+  // Сохраняем данные Шепли
+  el._shapleyData = data;
+}
+
+// ── КОНЕЦ ШЕПЛИ ──────────────────────────────────────────────────────────────
+// ── ЭКСПОРТ PDF ────────────────────────────────────────────────────────────────
+async function exportPDF(){
+  if(!_lastExpForShapley){ toast('Сначала запустите эксперимент','err'); return; }
+  const exp = _lastExpForShapley;
+  if(exp.status !== 'done'){ toast('Эксперимент ещё не завершён','err'); return; }
+
+  const btn = document.getElementById('pdf-btn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Генерирую...'; }
+
+  // Запрашиваем значения Шепли если есть лучшая конфигурация
+  let shapleyData = null;
+  const br = exp.best_run;
+  if(br && br.best_config_ids && br.best_config_ids.length > 0){
+    try{
+      const body = {config_ids: br.best_config_ids, method: 'auto', n_samples: 256};
+      if(exp.config?.custom_problem_id) body.custom_problem_id = exp.config.custom_problem_id;
+      else { body.domain_id = exp.config?.domain_id; body.config_size = exp.config?.config_size; }
+      shapleyData = await api('/api/shapley', 'POST', body);
+    }catch(e){ console.warn('Шепли не удалось получить:', e); }
+  }
+
+  try{
+    const resp = await fetch(`/api/experiments/${exp.id}/pdf`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({shapley_data: shapleyData})
+    });
+    if(!resp.ok){
+      const err = await resp.json();
+      toast('Ошибка PDF: ' + err.error, 'err');
+      return;
+    }
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `metaopt_report_${exp.id}.pdf`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('PDF скачан!', 'ok');
+  }catch(e){
+    toast('Ошибка: ' + e.message, 'err');
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent='📄 PDF отчёт'; }
+  }
+}
+
+// ── РЕКОМЕНДАЦИЯ АЛГОРИТМА ──────────────────────
+async function updateAlgRecommendation(){
+  const recBlock = document.getElementById('alg-recommend');
+  const recText  = document.getElementById('alg-recommend-text');
+  if(!recBlock||!recText) return;
+
+  // Получаем характеристики задачи
+  const src = document.getElementById('exp-src').value;
+  let n_components = 0, config_size = 0, n_constraints = 0,
+      n_objectives = 0, has_synergies = false, param_types = 'discrete';
+
+  try{
+    if(src === 'builtin'){
+      const domId = document.getElementById('dom-sel').value;
+      if(!domId){ recBlock.style.display='none'; return; }
+      config_size = parseInt(document.getElementById('cfg-sz').value)||5;
+      const info = builtins.find(d=>d.id===domId);
+      if(info){
+        n_components = info.n_components;
+        n_constraints = info.n_constraints;
+        n_objectives = info.n_objectives;
+      }
+    } else {
+      const probId = document.getElementById('cust-sel').value;
+      if(!probId){ recBlock.style.display='none'; return; }
+      const p = custProbs.find(x=>x.id==probId);
+      if(!p){ recBlock.style.display='none'; return; }
+      config_size = p.config_size;
+      n_constraints = (p.constraints||[]).length;
+      n_objectives = (p.objectives||[]).length;
+      // Проверяем есть ли синергии
+      has_synergies = (p.objectives||[]).some(o=>o.param==='__synergy__');
+      // Получаем кол-во компонентов
+      const cat = cats.find(c=>c.id==p.catalog_id);
+      n_components = cat ? cat.n_components : 50;
+    }
+  }catch(e){ return; }
+
+  // Характеристики задачи
+  const n = n_components;
+  const k = config_size;
+  const total_combos = comb(n, k); // C(n,k)
+
+  const reasons = [];
+  const recommended = [];
+  const alternatives = [];
+
+  // 1. Размерность пространства поиска
+  if(total_combos < 1000){
+    reasons.push(`Малое пространство поиска (C(${n},${k})=${fmtBig(total_combos)}) — полный перебор возможен`);
+    recommended.push('GA','DE');
+    alternatives.push('PSO');
+  } else if(total_combos < 1e6){
+    reasons.push(`Средняя размерность (C(${n},${k})=${fmtBig(total_combos)})`);
+    recommended.push('HybridDEGA','DE');
+    alternatives.push('GA','PSO');
+  } else {
+    reasons.push(`Большая размерность (C(${n},${k})≈${fmtBig(total_combos)}) — перебор невозможен`);
+    recommended.push('HybridDEGA','DE');
+    alternatives.push('ACO');
+  }
+
+  // 2. Ограничения
+  if(n_constraints === 0){
+    reasons.push('Нет ограничений — все алгоритмы применимы');
+  } else if(n_constraints >= 2){
+    reasons.push(`Множественные ограничения (${n_constraints}) → GA с пенальти (табл. 2)`);
+    if(!recommended.includes('GA')) recommended.unshift('GA');
+  } else {
+    reasons.push(`${n_constraints} ограничение`);
+  }
+
+  // 3. Синергии
+  if(has_synergies){
+    reasons.push('Присутствует матрица синергий → GA и гибриды лучше справляются с нелинейными взаимодействиями (+20-30%, разд. 4.2)');
+    if(!recommended.includes('GA')) recommended.push('GA');
+    if(!recommended.includes('HybridDEGA')) recommended.push('HybridDEGA');
+  }
+
+  // 4. Многокритериальность
+  if(n_objectives >= 3){
+    reasons.push(`Многокритериальная задача (${n_objectives} критерия) → взвешенная сумма + GA (табл. 2)`);
+    if(!recommended.includes('GA')) recommended.push('GA');
+  }
+
+  // 5. Дискретность — все задачи конфигурации дискретные по природе
+  reasons.push('Задача выбора подмножества — дискретное пространство → GA, ACO предпочтительны (табл. 2)');
+  if(!recommended.includes('ACO') && total_combos > 1e4) alternatives.push('ACO');
+
+  // Убираем дубли
+  const recUniq = [...new Set(recommended)].slice(0,3);
+  const altUniq = [...new Set(alternatives)].filter(a=>!recUniq.includes(a)).slice(0,2);
+
+  // Рекомендованный max_evals по разд. 4.2
+  let suggested_evals = 500;
+  if(total_combos > 1e6) suggested_evals = 2000;
+  else if(total_combos > 1e4) suggested_evals = 1000;
+  reasons.push(`Рекомендуемый max_evals для 85% оптимума: ~${suggested_evals}`);
+
+  // Подсвечиваем рекомендованные алгоритмы в списке (только визуально, не меняем выбор)
+  algs.forEach(a=>{
+    const cb = document.getElementById('ac-'+a.id);
+    const block = cb?.closest('div[style]');
+    if(!block) return;
+    if(recUniq.includes(a.id)){
+      block.style.borderColor = 'var(--accent-border)';
+      block.style.background = 'var(--accent-bg)';
+    } else {
+      block.style.borderColor = 'var(--border)';
+      block.style.background = 'var(--bg3)';
+    }
+  });
+
+  // Устанавливаем рекомендованный max_evals
+  const evSlider = document.getElementById('mx-ev');
+  const evVal = document.getElementById('mx-ev-v');
+  if(evSlider && suggested_evals <= parseInt(evSlider.max)){
+    evSlider.value = suggested_evals;
+    if(evVal) evVal.textContent = suggested_evals;
+  }
+
+  // Отображаем
+  const colors = {GA:'#00e5ff',PSO:'#00ff88',DE:'#ff8c00',ACO:'#9b59ff',SA:'#ffe066',HybridDEGA:'#ff3355'};
+  const algBadge = id => `<span style="background:${colors[id]||'#888'}20;color:${colors[id]||'#888'};border:1px solid ${colors[id]||'#888'}40;border-radius:3px;padding:1px 6px;font-size:11px;font-weight:600">${id}</span>`;
+
+  recText.innerHTML = `
+    <div style="margin-bottom:8px">
+      <span style="color:var(--text2)">Рекомендую: </span>
+      ${recUniq.map(algBadge).join(' ')}
+      ${altUniq.length ? `<span style="color:var(--text3);margin-left:6px">альт: ${altUniq.map(algBadge).join(' ')}</span>` : ''}
+    </div>
+    <div style="font-size:11px;color:var(--text3);line-height:1.8">
+      ${reasons.map(r=>`• ${r}`).join('<br>')}
+    </div>`;
+
+  recBlock.style.display = '';
+}
+
+// Вызываем рекомендацию при изменении домена/задачи
+const _origOnSrcChange = window.onSrcChange;
+window.onSrcChange = function(){
+  if(_origOnSrcChange) _origOnSrcChange();
+  setTimeout(updateAlgRecommendation, 100);
+};
+
+// ── КОНЕЦ РЕКОМЕНДАЦИИ ────────────────────────────────────────────────────────
+// Делаем функции доступными из inline onclick атрибутов
+window.openSyn=openSyn;
+window.switchSynTab=switchSynTab;
+window.openEditCat=openEditCat;
+window.delCat=delCat;
+window.openNewComp=openNewComp;
+window.importCSV=importCSV;
+window.openImportModal=openImportModal;
+window.showImportStep=showImportStep;
+window.handleImportDrop=handleImportDrop;
+window.handleImportFile=handleImportFile;
+window.parseImportText=parseImportText;
+window.doImport=doImport;
+window.openEditComp=openEditComp;
+window.togComp=togComp;
+window.delComp=delComp;
+window.setSort=setSort;
+window.addSyn=addSyn;
+window.delSyn=delSyn;
+window.importSynCSV=importSynCSV;
+window.addObj=addObj;
+window.updateConRow=updateConRow;
+window.previewProb=previewProb;
+window.exportCSV=exportCSV;
+window.exportPDF=exportPDF;
+window.runShapley=runShapley;
+window.addCon=addCon;
+window.onProbCatCh=onProbCatCh;
+window.openEditProb=openEditProb;
+window.delProb=delProb;
+window.runCustProb=runCustProb;
+window.togAlg=togAlg;
+window.chkReady=chkReady;
+window.runBuiltin=runBuiltin;
+window.openMo=openMo;
+window.closeMo=closeMo;
+window.toggleTheme=toggleTheme;
+
+function toggleTheme(){
+  const isLight = document.documentElement.getAttribute('data-theme')==='light';
+  if(isLight){ document.documentElement.removeAttribute('data-theme'); }
+  else { document.documentElement.setAttribute('data-theme','light'); }
+  const btn = document.getElementById('theme-toggle-btn');
+  if(btn) btn.textContent = isLight ? '🌙' : '☀️';
+  localStorage.setItem('metaopt-theme', isLight ? 'dark' : 'light');
+}
+
+(function(){
+  const saved = localStorage.getItem('metaopt-theme');
+  if(saved === 'light'){
+    document.documentElement.setAttribute('data-theme','light');
+    const btn = document.getElementById('theme-toggle-btn');
+    if(btn) btn.textContent = '☀️';
+  }
+})();
+
+init();
+</script>
+</body>
+</html>

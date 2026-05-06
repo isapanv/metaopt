@@ -1,0 +1,112 @@
+comp_id,name_гтше,job_title,experience_level,work_model,salary_usd_k,productivity,collaboration,reliability,specialization,exp_tag,tags,
+1,Data Engineer (Mid#1),Data Engineer,Mid-level,Remote,148,66,72,82,DataEngineering,Mid,DataEngineering,Mid
+2,Data Engineer (Mid#2),Data Engineer,Mid-level,Remote,99,66,74,82,DataEngineering,Mid,DataEngineering,Mid
+3,Data Scientist (Senior#1),Data Scientist,Senior-level,Remote,140,88,81,86,DataScience,Senior,DataScience,Senior
+4,Data Scientist (Senior#2),Data Scientist,Senior-level,Remote,100,88,81,86,DataScience,Senior,DataScience,Senior
+5,Data Scientist (Mid#1),Data Scientist,Mid-level,Remote,148,68,72,78,DataScience,Mid,DataScience,Mid
+6,Data Scientist (Mid#2),Data Scientist,Mid-level,Remote,99,68,74,78,DataScience,Mid,DataScience,Mid
+7,Data Engineer (Mid#3),Data Engineer,Mid-level,On-site,146,66,71,82,DataEngineering,Mid,DataEngineering,Mid
+8,Data Engineer (Mid#4),Data Engineer,Mid-level,On-site,93,66,77,82,DataEngineering,Mid,DataEngineering,Mid
+9,Data Scientist (Mid#3),Data Scientist,Mid-level,On-site,85,68,72,78,DataScience,Mid,DataScience,Mid
+10,Data Scientist (Mid#4),Data Scientist,Mid-level,On-site,75,68,76,78,DataScience,Mid,DataScience,Mid
+11,Data Engineer (Senior#1),Data Engineer,Senior-level,On-site,205,85,81,90,DataEngineering,Senior,DataEngineering,Senior
+12,Data Engineer (Senior#2),Data Engineer,Senior-level,On-site,185,85,82,90,DataEngineering,Senior,DataEngineering,Senior
+13,Data Analyst (Junior#1),Data Analyst,Entry-level,On-site,115,43,59,69,Analytics,Junior,Analytics,Junior
+14,Data Analyst (Junior#2),Data Analyst,Entry-level,On-site,85,43,59,69,Analytics,Junior,Analytics,Junior
+15,Machine Learning Engineer (Senior#1),Machine Learning Engineer,Senior-level,On-site,268,95,87,86,ML,Senior,ML,Senior
+16,Machine Learning Engineer (Senior#2),Machine Learning Engineer,Senior-level,On-site,235,95,86,86,ML,Senior,ML,Senior
+17,Data Analyst (Junior#3),Data Analyst,Entry-level,On-site,196,43,65,69,Analytics,Junior,Analytics,Junior
+18,Data Analyst (Junior#4),Data Analyst,Entry-level,On-site,68,43,60,69,Analytics,Junior,Analytics,Junior
+19,Data Scientist (Senior#3),Data Scientist,Senior-level,On-site,242,88,83,86,DataScience,Senior,DataScience,Senior
+20,Data Scientist (Senior#4),Data Scientist,Senior-level,On-site,106,88,82,86,DataScience,Senior,DataScience,Senior
+21,Machine Learning Engineer (Senior#3),Machine Learning Engineer,Senior-level,On-site,215,95,86,86,ML,Senior,ML,Senior
+22,Machine Learning Engineer (Senior#4),Machine Learning Engineer,Senior-level,On-site,147,95,86,86,ML,Senior,ML,Senior
+23,Data Analyst (Senior#1),Data Analyst,Senior-level,On-site,176,75,85,89,Analytics,Senior,Analytics,Senior
+24,Data Analyst (Senior#2),Data Analyst,Senior-level,On-site,104,75,86,89,Analytics,Senior,Analytics,Senior
+25,Analytics Engineer (Senior#1),Analytics Engineer,Senior-level,Remote,170,82,81,90,Analytics,Senior,Analytics,Senior
+26,Analytics Engineer (Senior#2),Analytics Engineer,Senior-level,Remote,130,82,83,90,Analytics,Senior,Analytics,Senior
+27,Data Analyst (Mid#1),Data Analyst,Mid-level,On-site,134,58,71,81,Analytics,Mid,Analytics,Mid
+28,Data Analyst (Mid#2),Data Analyst,Mid-level,On-site,100,58,78,81,Analytics,Mid,Analytics,Mid
+29,Machine Learning Engineer (Mid#1),Machine Learning Engineer,Mid-level,On-site,173,74,76,78,ML,Mid,ML,Mid
+30,Machine Learning Engineer (Mid#2),Machine Learning Engineer,Mid-level,On-site,99,74,73,78,ML,Mid,ML,Mid
+31,Research Scientist (Senior#1),Research Scientist,Senior-level,On-site,258,94,88,87,Research,Senior,Research,Senior
+32,Research Scientist (Senior#2),Research Scientist,Senior-level,On-site,152,94,88,87,Research,Senior,Research,Senior
+33,Research Engineer (Senior#1),Research Engineer,Senior-level,On-site,100,91,88,85,Research,Senior,Research,Senior
+34,Machine Learning Engineer (Junior#1),Machine Learning Engineer,Entry-level,On-site,91,55,61,66,ML,Junior,ML,Junior
+35,Machine Learning Engineer (Junior#2),Machine Learning Engineer,Entry-level,On-site,70,55,64,66,ML,Junior,ML,Junior
+36,AI Engineer (Mid#1),AI Engineer,Mid-level,On-site,170,74,77,80,AI,Mid,AI,Mid
+37,AI Engineer (Mid#2),AI Engineer,Mid-level,On-site,84,74,78,80,AI,Mid,AI,Mid
+38,Data Engineer (Senior#3),Data Engineer,Senior-level,Remote,205,85,88,90,DataEngineering,Senior,DataEngineering,Senior
+39,Data Engineer (Senior#4),Data Engineer,Senior-level,Remote,165,85,81,90,DataEngineering,Senior,DataEngineering,Senior
+40,Data Architect (Senior#1),Data Architect,Senior-level,Remote,175,87,87,85,Architecture,Senior,Architecture,Senior
+41,Data Architect (Senior#2),Data Architect,Senior-level,Remote,125,87,84,85,Architecture,Senior,Architecture,Senior
+42,Research Engineer (Mid#1),Research Engineer,Mid-level,On-site,295,70,77,77,Research,Mid,Research,Mid
+43,Research Engineer (Mid#2),Research Engineer,Mid-level,On-site,119,70,73,77,Research,Mid,Research,Mid
+44,Research Engineer (Mid#3),Research Engineer,Mid-level,On-site,97,70,73,77,Research,Mid,Research,Mid
+45,Research Engineer (Mid#4),Research Engineer,Mid-level,On-site,245,70,78,77,Research,Mid,Research,Mid
+46,Data Architect (Senior#3),Data Architect,Senior-level,On-site,179,87,86,85,Architecture,Senior,Architecture,Senior
+47,Data Architect (Senior#4),Data Architect,Senior-level,On-site,67,87,83,85,Architecture,Senior,Architecture,Senior
+48,Data Analyst (Senior#3),Data Analyst,Senior-level,Remote,169,75,88,89,Analytics,Senior,Analytics,Senior
+49,Data Analyst (Senior#4),Data Analyst,Senior-level,Remote,120,75,86,89,Analytics,Senior,Analytics,Senior
+50,Research Engineer (Senior#2),Research Engineer,Senior-level,On-site,245,91,88,85,Research,Senior,Research,Senior
+51,Research Engineer (Senior#3),Research Engineer,Senior-level,On-site,241,91,86,85,Research,Senior,Research,Senior
+52,Research Engineer (Senior#4),Research Engineer,Senior-level,On-site,201,91,87,85,Research,Senior,Research,Senior
+53,Research Scientist (Senior#3),Research Scientist,Senior-level,On-site,245,94,88,87,Research,Senior,Research,Senior
+54,Research Scientist (Senior#4),Research Scientist,Senior-level,On-site,279,94,81,87,Research,Senior,Research,Senior
+55,Analytics Engineer (Mid#1),Analytics Engineer,Mid-level,On-site,100,63,78,82,Analytics,Mid,Analytics,Mid
+56,Analytics Engineer (Mid#2),Analytics Engineer,Mid-level,On-site,75,63,76,82,Analytics,Mid,Analytics,Mid
+57,ML Engineer (Senior#1),ML Engineer,Senior-level,On-site,189,93,88,88,ML,Senior,ML,Senior
+58,Analytics Engineer (Mid#3),Analytics Engineer,Mid-level,On-site,134,63,78,82,Analytics,Mid,Analytics,Mid
+59,Analytics Engineer (Mid#4),Analytics Engineer,Mid-level,On-site,72,63,78,82,Analytics,Mid,Analytics,Mid
+60,Data Analyst (Mid#3),Data Analyst,Mid-level,On-site,90,58,78,81,Analytics,Mid,Analytics,Mid
+61,Research Scientist (Mid#1),Research Scientist,Mid-level,On-site,179,73,72,79,Research,Mid,Research,Mid
+62,Research Scientist (Mid#2),Research Scientist,Mid-level,On-site,112,73,71,79,Research,Mid,Research,Mid
+63,ML Engineer (Senior#2),ML Engineer,Senior-level,On-site,324,93,81,88,ML,Senior,ML,Senior
+64,ML Engineer (Senior#3),ML Engineer,Senior-level,On-site,159,93,81,88,ML,Senior,ML,Senior
+65,Machine Learning Engineer (Mid#3),Machine Learning Engineer,Mid-level,On-site,166,74,76,78,ML,Mid,ML,Mid
+66,Machine Learning Engineer (Mid#4),Machine Learning Engineer,Mid-level,On-site,73,74,71,78,ML,Mid,ML,Mid
+67,Analytics Engineer (Senior#3),Analytics Engineer,Senior-level,Remote,195,82,82,90,Analytics,Senior,Analytics,Senior
+68,Analytics Engineer (Senior#4),Analytics Engineer,Senior-level,Remote,165,82,81,90,Analytics,Senior,Analytics,Senior
+69,Data Analyst (Mid#4),Data Analyst,Mid-level,On-site,158,58,77,81,Analytics,Mid,Analytics,Mid
+70,Research Scientist (Mid#3),Research Scientist,Mid-level,On-site,100,73,78,79,Research,Mid,Research,Mid
+71,Research Scientist (Mid#4),Research Scientist,Mid-level,Remote,82,73,73,79,Research,Mid,Research,Mid
+72,Data Scientist (Junior#1),Data Scientist,Entry-level,On-site,100,51,65,66,DataScience,Junior,DataScience,Junior
+73,Data Scientist (Junior#2),Data Scientist,Entry-level,On-site,70,51,64,66,DataScience,Junior,DataScience,Junior
+74,Data Scientist (Junior#3),Data Scientist,Entry-level,On-site,114,51,59,66,DataScience,Junior,DataScience,Junior
+75,Data Scientist (Junior#4),Data Scientist,Entry-level,On-site,63,51,65,66,DataScience,Junior,DataScience,Junior
+76,ML Engineer (Senior#4),ML Engineer,Senior-level,On-site,292,93,85,88,ML,Senior,ML,Senior
+77,Machine Learning Engineer (Junior#3),Machine Learning Engineer,Entry-level,Remote,126,55,58,66,ML,Junior,ML,Junior
+78,Machine Learning Engineer (Junior#4),Machine Learning Engineer,Entry-level,Remote,93,55,64,66,ML,Junior,ML,Junior
+79,AI Engineer (Senior#1),AI Engineer,Senior-level,On-site,142,96,84,88,AI,Senior,AI,Senior
+80,AI Engineer (Senior#2),AI Engineer,Senior-level,On-site,95,96,86,88,AI,Senior,AI,Senior
+81,Research Engineer (Junior#1),Research Engineer,Entry-level,On-site,350,52,58,65,Research,Junior,Research,Junior
+82,Research Engineer (Junior#2),Research Engineer,Entry-level,On-site,250,52,59,65,Research,Junior,Research,Junior
+83,ML Engineer (Mid#1),ML Engineer,Mid-level,On-site,155,72,77,80,ML,Mid,ML,Mid
+84,ML Engineer (Mid#2),ML Engineer,Mid-level,On-site,125,72,74,80,ML,Mid,ML,Mid
+85,AI Engineer (Mid#3),AI Engineer,Mid-level,On-site,171,74,72,80,AI,Mid,AI,Mid
+86,AI Engineer (Mid#4),AI Engineer,Mid-level,On-site,151,74,75,80,AI,Mid,AI,Mid
+87,AI Engineer (Senior#3),AI Engineer,Senior-level,On-site,242,96,83,88,AI,Senior,AI,Senior
+88,AI Engineer (Senior#4),AI Engineer,Senior-level,On-site,106,96,82,88,AI,Senior,AI,Senior
+89,Data Engineer (Junior#1),Data Engineer,Entry-level,Remote,60,49,61,70,DataEngineering,Junior,DataEngineering,Junior
+90,Research Engineer (Junior#3),Research Engineer,Entry-level,On-site,98,52,64,65,Research,Junior,Research,Junior
+91,Research Engineer (Junior#4),Research Engineer,Entry-level,On-site,73,52,58,65,Research,Junior,Research,Junior
+92,Research Scientist (Junior#1),Research Scientist,Entry-level,On-site,162,54,65,67,Research,Junior,Research,Junior
+93,Research Scientist (Junior#2),Research Scientist,Entry-level,On-site,195,54,65,67,Research,Junior,Research,Junior
+94,Research Scientist (Junior#3),Research Scientist,Entry-level,On-site,100,54,63,67,Research,Junior,Research,Junior
+95,ML Engineer (Junior#1),ML Engineer,Entry-level,On-site,220,53,64,68,ML,Junior,ML,Junior
+96,ML Engineer (Junior#2),ML Engineer,Entry-level,On-site,130,53,60,68,ML,Junior,ML,Junior
+97,Data Architect (Mid#1),Data Architect,Mid-level,Remote,150,67,77,77,Architecture,Mid,Architecture,Mid
+98,Data Architect (Mid#2),Data Architect,Mid-level,Remote,140,67,76,77,Architecture,Mid,Architecture,Mid
+99,ML Engineer (Mid#3),ML Engineer,Mid-level,On-site,179,72,72,80,ML,Mid,ML,Mid
+100,ML Engineer (Mid#4),ML Engineer,Mid-level,On-site,144,72,71,80,ML,Mid,ML,Mid
+101,Research Scientist (Junior#4),Research Scientist,Entry-level,On-site,251,54,58,67,Research,Junior,Research,Junior
+102,Data Engineer (Junior#2),Data Engineer,Entry-level,Remote,85,49,59,70,DataEngineering,Junior,DataEngineering,Junior
+103,Data Engineer (Junior#3),Data Engineer,Entry-level,Remote,62,49,60,70,DataEngineering,Junior,DataEngineering,Junior
+104,Data Engineer (Junior#4),Data Engineer,Entry-level,On-site,88,49,65,70,DataEngineering,Junior,DataEngineering,Junior
+105,ML Engineer (Junior#3),ML Engineer,Entry-level,On-site,76,53,65,68,ML,Junior,ML,Junior
+106,Analytics Engineer (Junior#1),Analytics Engineer,Entry-level,Remote,156,47,64,70,Analytics,Junior,Analytics,Junior
+107,Analytics Engineer (Junior#2),Analytics Engineer,Entry-level,Remote,119,47,62,70,Analytics,Junior,Analytics,Junior
+108,Data Architect (Mid#3),Data Architect,Mid-level,Remote,110,67,77,77,Architecture,Mid,Architecture,Mid
+109,Data Architect (Mid#4),Data Architect,Mid-level,On-site,150,67,77,77,Architecture,Mid,Architecture,Mid
+110,Analytics Engineer (Junior#3),Analytics Engineer,Entry-level,On-site,90,47,58,70,Analytics,Junior,Analytics,Junior
+111,Analytics Engineer (Junior#4),Analytics Engineer,Entry-level,On-site,84,47,60,70,Analytics,Junior,Analytics,Junior

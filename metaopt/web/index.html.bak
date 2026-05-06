@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MetaOpt — Метаэвристическая оптимизация конфигураций</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Unbounded:wght@300;400;600;800&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --bg:       #0a0c10;
+    --bg2:      #0f1218;
+    --bg3:      #151b24;
+    --border:   #1e2a38;
+    --border2:  #253040;
+    --text:     #c8d8e8;
+    --text2:    #7a9ab8;
+    --text3:    #4a6680;
+    --accent:   #00e5ff;
+    --accent2:  #0099bb;
+    --green:    #00ff88;
+    --orange:   #ff8c00;
+    --red:      #ff3355;
+    --purple:   #9b59ff;
+    --yellow:   #ffe066;
+
+    /* Цвета алгоритмов */
+    --ga-color:   #00e5ff;
+    --pso-color:  #00ff88;
+    --de-color:   #ff8c00;
+    --aco-color:  #9b59ff;
+    --sa-color:   #ffe066;
+    --hybrid-color: #ff3355;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── GRID NOISE ─── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    opacity: 0.3;
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    position: relative; z-index: 10;
+    border-bottom: 1px solid var(--border2);
+    padding: 0 32px;
+    display: flex; align-items: center; gap: 32px;
+    height: 64px;
+    background: rgba(10,12,16,0.9);
+    backdrop-filter: blur(20px);
+  }
+  .logo {
+    font-family: 'Unbounded', sans-serif;
+    font-size: 20px; font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--text2); font-weight: 300; }
+  nav { display: flex; gap: 4px; margin-left: auto; }
+  nav button {
+    background: none; border: none; cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px; font-weight: 500;
+    color: var(--text2); padding: 8px 16px; border-radius: 6px;
+    transition: all 0.15s;
+    letter-spacing: 0.3px;
+  }
+  nav button:hover { background: var(--bg3); color: var(--text); }
+  nav button.active { background: var(--bg3); color: var(--accent); border: 1px solid var(--border2); }
+
+  /* ─── LAYOUT ─── */
+  .app { position: relative; z-index: 1; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 80px 64px 60px;
+    max-width: 960px;
+  }
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--accent); letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-family: 'Unbounded', sans-serif;
+    font-size: clamp(28px, 4vw, 52px); font-weight: 800;
+    line-height: 1.1; margin-bottom: 20px;
+    color: #fff;
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p {
+    font-size: 16px; color: var(--text2); line-height: 1.7;
+    max-width: 600px; margin-bottom: 36px;
+  }
+  .hero-cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+    padding: 12px 24px; border-radius: 8px; cursor: pointer; border: none;
+    transition: all 0.15s; letter-spacing: 0.3px;
+  }
+  .btn-primary {
+    background: var(--accent); color: #000;
+  }
+  .btn-primary:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,229,255,0.3); }
+  .btn-outline {
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border2);
+  }
+  .btn-outline:hover { background: var(--bg3); border-color: var(--text3); }
+
+  /* ─── STATS STRIP ─── */
+  .stats-strip {
+    display: flex; gap: 1px; margin: 40px 64px;
+    border: 1px solid var(--border2); border-radius: 12px; overflow: hidden;
+    background: var(--border2);
+  }
+  .stat-item {
+    flex: 1; background: var(--bg2); padding: 20px 24px;
+  }
+  .stat-value {
+    font-family: 'Unbounded', sans-serif; font-size: 28px; font-weight: 800;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 12px; color: var(--text3); margin-top: 4px; letter-spacing: 0.5px; }
+
+  /* ─── CARDS GRID ─── */
+  .section { padding: 0 64px 60px; }
+  .section-title {
+    font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 600;
+    color: var(--text3); letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+
+  .card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px; cursor: pointer;
+    transition: all 0.2s; position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent) 0%, transparent 100%);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+  .card:hover::before { opacity: 1; }
+  .card.selected { border-color: var(--accent); background: rgba(0,229,255,0.04); }
+  .card.selected::before { opacity: 1; }
+
+  .card-icon { font-size: 32px; margin-bottom: 12px; }
+  .card-name { font-weight: 600; font-size: 15px; margin-bottom: 6px; color: #fff; }
+  .card-desc { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .card-meta { display: flex; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+  .chip {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px;
+    background: var(--bg3); border: 1px solid var(--border2); color: var(--text3);
+  }
+  .chip.accent { border-color: var(--accent2); color: var(--accent); background: rgba(0,229,255,0.07); }
+
+  /* ─── CONFIGURE PAGE ─── */
+  .configure-layout {
+    display: grid; grid-template-columns: 380px 1fr; gap: 24px;
+    padding: 32px 64px; min-height: calc(100vh - 64px);
+  }
+  .config-panel {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; height: fit-content;
+    position: sticky; top: 80px;
+  }
+  .config-panel h2 {
+    font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 700;
+    color: #fff; margin-bottom: 24px;
+  }
+  .form-group { margin-bottom: 20px; }
+  .form-label {
+    display: block; font-size: 12px; font-weight: 500; color: var(--text2);
+    margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .form-select, .form-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 10px 14px; color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px;
+    transition: border-color 0.15s; outline: none;
+  }
+  .form-select:focus, .form-input:focus { border-color: var(--accent2); }
+  option { background: var(--bg3); }
+
+  .range-group { display: flex; align-items: center; gap: 12px; }
+  .form-range {
+    flex: 1; accent-color: var(--accent); cursor: pointer;
+  }
+  .range-val {
+    font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+    color: var(--accent); min-width: 32px; text-align: right;
+  }
+
+  .alg-list { display: flex; flex-direction: column; gap: 8px; }
+  .alg-item {
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 8px; overflow: hidden;
+  }
+  .alg-header {
+    display: flex; align-items: center; gap: 12px; padding: 12px 14px;
+    cursor: pointer;
+  }
+  .alg-check { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
+  .alg-name { font-size: 14px; font-weight: 500; flex: 1; }
+  .alg-toggle { font-size: 11px; color: var(--text3); cursor: pointer; user-select: none; }
+  .alg-params {
+    padding: 0 14px 12px; display: none;
+    border-top: 1px solid var(--border);
+  }
+  .alg-params.open { display: block; }
+  .param-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .param-label { font-size: 11px; color: var(--text2); flex: 1; white-space: nowrap; }
+  .param-input {
+    width: 80px; background: var(--bg2); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 5px 8px; color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; text-align: right; outline: none;
+  }
+  .param-input:focus { border-color: var(--accent2); }
+
+  .run-btn {
+    width: 100%; padding: 14px; font-size: 15px; font-weight: 700;
+    font-family: 'Unbounded', sans-serif; letter-spacing: 0.5px;
+    background: var(--accent); color: #000; border: none;
+    border-radius: 10px; cursor: pointer; transition: all 0.15s; margin-top: 8px;
+  }
+  .run-btn:hover { background: #fff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,229,255,0.3); }
+  .run-btn:disabled { background: var(--bg3); color: var(--text3); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* ─── RESULTS PANEL ─── */
+  .results-area { display: flex; flex-direction: column; gap: 20px; }
+  .result-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px;
+  }
+  .result-card h3 {
+    font-family: 'Unbounded', sans-serif; font-size: 14px; font-weight: 700;
+    color: var(--accent); margin-bottom: 20px; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* Progress */
+  .progress-container { display: flex; flex-direction: column; gap: 8px; }
+  .progress-bar-wrap {
+    background: var(--bg3); border-radius: 6px; height: 8px; overflow: hidden;
+  }
+  .progress-bar {
+    height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 6px; transition: width 0.3s; width: 0%;
+  }
+  .progress-log {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text2);
+    background: var(--bg3); border-radius: 8px; padding: 12px;
+    max-height: 160px; overflow-y: auto; line-height: 1.8;
+  }
+
+  /* Summary Table */
+  .summary-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .summary-table th {
+    text-align: left; padding: 10px 14px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    color: var(--text3); letter-spacing: 1px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .summary-table td {
+    padding: 12px 14px; border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+  }
+  .summary-table tr:last-child td { border-bottom: none; }
+  .summary-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .fitness-val { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+  .fitness-val.best { color: var(--green); }
+  .alg-badge {
+    display: inline-block; padding: 3px 10px; border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+  }
+
+  /* Convergence chart */
+  #convergence-canvas {
+    width: 100%; border-radius: 8px; background: var(--bg3);
+    border: 1px solid var(--border);
+  }
+
+  /* Best solution */
+  .best-solution-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;
+  }
+  .component-card {
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 10px; padding: 14px;
+  }
+  .component-id {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    color: var(--accent); margin-bottom: 8px;
+  }
+  .component-params { font-size: 12px; color: var(--text2); line-height: 1.8; }
+  .component-params span { color: var(--text); }
+
+  /* Objective bars */
+  .obj-bars { display: flex; flex-direction: column; gap: 10px; }
+  .obj-row { display: flex; align-items: center; gap: 12px; }
+  .obj-name { font-size: 12px; color: var(--text2); width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .obj-bar-wrap { flex: 1; background: var(--bg3); border-radius: 4px; height: 8px; overflow: hidden; }
+  .obj-bar { height: 100%; border-radius: 4px; background: var(--accent); transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+  .obj-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); width: 60px; text-align: right; }
+
+  /* Empty state */
+  .empty-state {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 80px 40px; text-align: center; gap: 16px;
+  }
+  .empty-icon { font-size: 48px; opacity: 0.3; }
+  .empty-text { font-size: 15px; color: var(--text3); }
+
+  /* Toast */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 999;
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 10px; padding: 14px 20px;
+    font-size: 14px; color: var(--text);
+    transform: translateY(80px); opacity: 0;
+    transition: all 0.3s; pointer-events: none;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  }
+  #toast.show { transform: translateY(0); opacity: 1; }
+  #toast.success { border-color: var(--green); color: var(--green); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+
+  /* Spinner */
+  .spinner {
+    display: inline-block; width: 16px; height: 16px;
+    border: 2px solid var(--border2); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg2); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  /* Domain detail in configure */
+  .domain-detail {
+    background: var(--bg3); border: 1px solid var(--border2);
+    border-radius: 10px; padding: 14px; margin-bottom: 16px;
+    font-size: 12px; line-height: 1.7;
+  }
+  .domain-detail-title { font-weight: 600; color: var(--accent); margin-bottom: 6px; font-size: 13px; }
+  .tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 2px 7px; border-radius: 3px;
+    background: rgba(0,229,255,0.08); border: 1px solid var(--accent2);
+    color: var(--accent);
+  }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex; gap: 2px; margin-bottom: 20px;
+    background: var(--bg3); padding: 4px; border-radius: 10px;
+  }
+  .tab-btn {
+    flex: 1; padding: 8px 12px; background: none; border: none; cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 500;
+    color: var(--text2); border-radius: 7px; transition: all 0.15s;
+  }
+  .tab-btn.active { background: var(--bg2); color: var(--text); border: 1px solid var(--border2); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Run list */
+  .run-list { display: flex; flex-direction: column; gap: 6px; max-height: 300px; overflow-y: auto; }
+  .run-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 8px; padding: 10px 14px; font-size: 12px;
+  }
+  .run-alg { font-family: 'JetBrains Mono', monospace; font-weight: 600; min-width: 80px; }
+  .run-fitness { font-family: 'JetBrains Mono', monospace; color: var(--green); margin-left: auto; }
+  .run-time { font-family: 'JetBrains Mono', monospace; color: var(--text3); font-size: 11px; }
+
+  @media (max-width: 900px) {
+    .configure-layout { grid-template-columns: 1fr; padding: 16px 20px; }
+    .hero { padding: 40px 24px; }
+    .stats-strip { margin: 24px 24px; }
+    .section { padding: 0 24px 40px; }
+    .config-panel { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Meta<span>Opt</span></div>
+  <nav>
+    <button class="active" onclick="showPage('home')">Обзор</button>
+    <button onclick="showPage('configure')">Эксперимент</button>
+    <button onclick="showPage('history')">История</button>
+  </nav>
+</header>
+
+<div class="app">
+
+<!-- ═══════════════════════════════════════════════════════ HOME ══ -->
+<div id="page-home" class="page active">
+  <div class="hero">
+    <div class="hero-tag">// Метаэвристическая оптимизация</div>
+    <h1>Поиск оптимальных<br><em>конфигураций</em><br>систем</h1>
+    <p>Универсальный фреймворк применения метаэвристических алгоритмов к задачам конфигурирования многопараметрических систем с синергиями между компонентами.</p>
+    <div class="hero-cta">
+      <button class="btn btn-primary" onclick="showPage('configure')">Запустить эксперимент →</button>
+      <button class="btn btn-outline" onclick="scrollToAlgorithms()">Алгоритмы</button>
+    </div>
+  </div>
+
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-value">6</div><div class="stat-label">Алгоритмов</div></div>
+    <div class="stat-item"><div class="stat-value">4</div><div class="stat-label">Предметных области</div></div>
+    <div class="stat-item"><div class="stat-value">3</div><div class="stat-label">Уровня абстракции</div></div>
+    <div class="stat-item"><div class="stat-value" id="stat-experiments">0</div><div class="stat-label">Экспериментов запущено</div></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Предметные области</div>
+    <div class="cards-grid" id="domain-cards-home"></div>
+  </div>
+
+  <div class="section" id="algorithms-section">
+    <div class="section-title">Алгоритмы оптимизации</div>
+    <div class="cards-grid" id="algorithm-cards-home"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ CONFIGURE ══ -->
+<div id="page-configure" class="page">
+  <div class="configure-layout">
+
+    <!-- Left: Config Panel -->
+    <div class="config-panel">
+      <h2>⚙ Конфигурация</h2>
+
+      <div class="form-group">
+        <label class="form-label">Предметная область</label>
+        <select class="form-select" id="domain-select" onchange="onDomainChange()">
+          <option value="">— выберите задачу —</option>
+        </select>
+      </div>
+
+      <div id="domain-detail-box" style="display:none"></div>
+
+      <div class="form-group">
+        <label class="form-label">Размер конфигурации</label>
+        <div class="range-group">
+          <input type="range" class="form-range" id="config-size" min="2" max="10" value="5" oninput="document.getElementById('config-size-val').textContent=this.value">
+          <span class="range-val" id="config-size-val">5</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Число повторений</label>
+        <div class="range-group">
+          <input type="range" class="form-range" id="n-runs" min="1" max="20" value="5" oninput="document.getElementById('n-runs-val').textContent=this.value">
+          <span class="range-val" id="n-runs-val">5</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Число вычислений (max_evals)</label>
+        <div class="range-group">
+          <input type="range" class="form-range" id="max-evals" min="100" max="3000" step="100" value="500" oninput="document.getElementById('max-evals-val').textContent=this.value">
+          <span class="range-val" id="max-evals-val">500</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Алгоритмы</label>
+        <div class="alg-list" id="alg-list"></div>
+      </div>
+
+      <button class="run-btn" id="run-btn" onclick="runExperiment()" disabled>
+        ▶ Запустить
+      </button>
+    </div>
+
+    <!-- Right: Results -->
+    <div class="results-area" id="results-area">
+      <div class="empty-state">
+        <div class="empty-icon">⚗</div>
+        <div class="empty-text">Настройте параметры и запустите эксперимент</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ HISTORY ══ -->
+<div id="page-history" class="page">
+  <div style="padding: 32px 64px">
+    <div class="section-title" style="margin-bottom:20px">История экспериментов</div>
+    <div id="history-list"></div>
+  </div>
+</div>
+
+</div><!-- .app -->
+
+<div id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════════════════
+let domains = [];
+let algorithms = [];
+let currentExpId = null;
+let eventSource = null;
+let convergenceData = {};  // alg_id -> [{x, best, avg}]
+
+// ══════════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════════════════════════════
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${id}`).classList.add('active');
+  const idx = {home:0, configure:1, history:2}[id];
+  document.querySelectorAll('nav button')[idx].classList.add('active');
+  if (id === 'history') loadHistory();
+}
+
+function scrollToAlgorithms() {
+  document.getElementById('algorithms-section').scrollIntoView({behavior:'smooth'});
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════════════
+async function init() {
+  [domains, algorithms] = await Promise.all([
+    fetch('/api/domains').then(r => r.json()),
+    fetch('/api/algorithms').then(r => r.json()),
+  ]);
+  renderHomeCards();
+  renderDomainSelect();
+  renderAlgorithmList();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════════════════════════════
+function renderHomeCards() {
+  const dc = document.getElementById('domain-cards-home');
+  dc.innerHTML = domains.map(d => `
+    <div class="card" onclick="selectDomainAndGo('${d.id}')">
+      <div class="card-icon">${d.icon}</div>
+      <div class="card-name">${d.name}</div>
+      <div class="card-desc">${d.description}</div>
+      <div class="card-meta">
+        <span class="chip">${d.n_components} компонентов</span>
+        <span class="chip">${d.n_objectives} критерия</span>
+        <span class="chip">${d.n_constraints} ограничения</span>
+      </div>
+    </div>
+  `).join('');
+
+  const algColors = {GA:'--ga-color', PSO:'--pso-color', DE:'--de-color', ACO:'--aco-color', SA:'--sa-color', HybridDEGA:'--hybrid-color'};
+  const ac = document.getElementById('algorithm-cards-home');
+  ac.innerHTML = algorithms.map(a => `
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:10px;height:10px;border-radius:50%;background:var(${algColors[a.id]||'--accent'})"></div>
+        <div class="card-name" style="margin:0">${a.name}</div>
+      </div>
+      <div class="card-desc">${a.description}</div>
+      <div class="card-meta">
+        ${Object.entries(a.params_schema).map(([k,v]) => `<span class="chip">${v.label}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectDomainAndGo(id) {
+  showPage('configure');
+  document.getElementById('domain-select').value = id;
+  onDomainChange();
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CONFIGURE — Domain
+// ══════════════════════════════════════════════════════════════════════
+function renderDomainSelect() {
+  const sel = document.getElementById('domain-select');
+  domains.forEach(d => {
+    const o = document.createElement('option');
+    o.value = d.id; o.textContent = `${d.icon} ${d.name}`;
+    sel.appendChild(o);
+  });
+}
+
+async function onDomainChange() {
+  const id = document.getElementById('domain-select').value;
+  const box = document.getElementById('domain-detail-box');
+  const sizeSlider = document.getElementById('config-size');
+  checkRunReady();
+
+  if (!id) { box.style.display = 'none'; return; }
+
+  const d = domains.find(x => x.id === id);
+  if (!d) return;
+
+  sizeSlider.min = d.min_config_size;
+  sizeSlider.max = d.max_config_size;
+  sizeSlider.value = d.default_config_size;
+  document.getElementById('config-size-val').textContent = d.default_config_size;
+
+  box.style.display = 'block';
+  box.innerHTML = `
+    <div class="domain-detail">
+      <div class="domain-detail-title">${d.icon} ${d.name}</div>
+      <div style="color:var(--text2);font-size:12px;margin-bottom:8px">${d.description}</div>
+      <div style="font-size:11px;color:var(--text3)">
+        Компонентов: <span style="color:var(--text)">${d.n_components}</span> &nbsp;|&nbsp;
+        Критериев: <span style="color:var(--text)">${d.n_objectives}</span>
+      </div>
+      <div class="tag-list">
+        ${d.objective_names.map(n => `<span class="tag">${n}</span>`).join('')}
+        ${d.constraint_names.map(n => `<span class="chip">${n}</span>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// CONFIGURE — Algorithms
+// ══════════════════════════════════════════════════════════════════════
+const algColors = {GA:'#00e5ff', PSO:'#00ff88', DE:'#ff8c00', ACO:'#9b59ff', SA:'#ffe066', HybridDEGA:'#ff3355'};
+
+function renderAlgorithmList() {
+  const container = document.getElementById('alg-list');
+  container.innerHTML = algorithms.map(a => {
+    const color = algColors[a.id] || '#00e5ff';
+    const paramsHtml = Object.entries(a.params_schema).map(([key, schema]) => {
+      if (schema.type === 'bool') return '';
+      return `
+        <div class="param-row">
+          <span class="param-label">${schema.label}</span>
+          <input class="param-input" type="number"
+            id="param-${a.id}-${key}"
+            value="${schema.default}"
+            min="${schema.min||0}" max="${schema.max||999}"
+            step="${schema.type==='float'?0.05:1}">
+        </div>
+      `;
+    }).join('');
+    return `
+      <div class="alg-item" id="alg-item-${a.id}">
+        <div class="alg-header" onclick="toggleAlgParams('${a.id}')">
+          <input type="checkbox" class="alg-check" id="alg-check-${a.id}"
+            onchange="checkRunReady()" onclick="e => e.stopPropagation()"
+            ${a.id==='GA'||a.id==='PSO' ? 'checked' : ''}>
+          <span style="width:8px;height:8px;border-radius:50%;background:${color};display:inline-block;flex-shrink:0"></span>
+          <span class="alg-name">${a.name}</span>
+          <span class="alg-toggle" id="toggle-${a.id}">▾ параметры</span>
+        </div>
+        <div class="alg-params" id="params-${a.id}">
+          ${paramsHtml || '<div style="font-size:11px;color:var(--text3);margin-top:8px">Параметров нет</div>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleAlgParams(id) {
+  const p = document.getElementById(`params-${id}`);
+  const t = document.getElementById(`toggle-${id}`);
+  const open = p.classList.toggle('open');
+  t.textContent = open ? '▴ параметры' : '▾ параметры';
+}
+
+function checkRunReady() {
+  const domainOk = !!document.getElementById('domain-select').value;
+  const algOk = algorithms.some(a => document.getElementById(`alg-check-${a.id}`)?.checked);
+  document.getElementById('run-btn').disabled = !(domainOk && algOk);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// RUN EXPERIMENT
+// ══════════════════════════════════════════════════════════════════════
+async function runExperiment() {
+  const domain_id = document.getElementById('domain-select').value;
+  const config_size = parseInt(document.getElementById('config-size').value);
+  const n_runs = parseInt(document.getElementById('n-runs').value);
+  const max_evals = parseInt(document.getElementById('max-evals').value);
+
+  const selectedAlgs = algorithms
+    .filter(a => document.getElementById(`alg-check-${a.id}`)?.checked)
+    .map(a => {
+      const params = {};
+      Object.entries(a.params_schema).forEach(([key, schema]) => {
+        if (schema.type !== 'bool') {
+          const el = document.getElementById(`param-${a.id}-${key}`);
+          if (el) params[key] = parseFloat(el.value);
+        }
+      });
+      return {id: a.id, params};
+    });
+
+  if (!selectedAlgs.length) { showToast('Выберите хотя бы один алгоритм', 'error'); return; }
+
+  // Disable button
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Запуск...';
+
+  // Show progress
+  convergenceData = {};
+  selectedAlgs.forEach(a => convergenceData[a.id] = []);
+
+  showProgressUI(selectedAlgs.map(a => a.id), n_runs);
+
+  try {
+    const resp = await fetch('/api/experiments', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({domain_id, config_size, algorithms: selectedAlgs, n_runs, max_evals}),
+    });
+    const data = await resp.json();
+    currentExpId = data.experiment_id;
+
+    // Stream progress
+    if (eventSource) eventSource.close();
+    eventSource = new EventSource(`/api/experiments/${currentExpId}/stream`);
+
+    let doneCount = 0;
+    const total = selectedAlgs.length * n_runs;
+
+    eventSource.onmessage = e => {
+      const msg = JSON.parse(e.data);
+      if (msg.status === 'done') {
+        eventSource.close();
+        loadResults(currentExpId);
+        btn.disabled = false;
+        btn.textContent = '▶ Запустить';
+        updateStatExperiments();
+      } else if (msg.status === 'error') {
+        eventSource.close();
+        showToast(msg.error || 'Ошибка', 'error');
+        btn.disabled = false;
+        btn.textContent = '▶ Запустить';
+      } else if (msg.algorithm) {
+        doneCount++;
+        updateProgress(doneCount, total, msg);
+      }
+    };
+  } catch(err) {
+    showToast('Ошибка запроса: ' + err.message, 'error');
+    btn.disabled = false;
+    btn.textContent = '▶ Запустить';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// UI — Progress
+// ══════════════════════════════════════════════════════════════════════
+function showProgressUI(algIds, n_runs) {
+  const area = document.getElementById('results-area');
+  area.innerHTML = `
+    <div class="result-card">
+      <h3>⟳ Выполнение эксперимента</h3>
+      <div class="progress-container">
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:6px">
+          <span id="progress-label">Инициализация...</span>
+          <span id="progress-pct">0%</span>
+        </div>
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+        <div class="progress-log" id="progress-log"></div>
+      </div>
+    </div>
+  `;
+}
+
+function updateProgress(done, total, msg) {
+  const pct = Math.round(done / total * 100);
+  const bar = document.getElementById('progress-bar');
+  const label = document.getElementById('progress-label');
+  const pctEl = document.getElementById('progress-pct');
+  const log = document.getElementById('progress-log');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = `${msg.algorithm} · run #${msg.run_id} · fitness=${msg.fitness?.toFixed(4)}`;
+  if (pctEl) pctEl.textContent = pct + '%';
+  if (log) {
+    const color = algColors[msg.algorithm] || '#00e5ff';
+    log.innerHTML += `<div><span style="color:${color}">[${msg.algorithm}]</span> run#${msg.run_id} fitness=<b style="color:var(--green)">${msg.fitness?.toFixed(4)}</b> (${msg.elapsed?.toFixed(2)}s)</div>`;
+    log.scrollTop = log.scrollHeight;
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// LOAD RESULTS
+// ══════════════════════════════════════════════════════════════════════
+async function loadResults(expId) {
+  const resp = await fetch(`/api/experiments/${expId}`);
+  const exp = await resp.json();
+  if (exp.status !== 'done') return;
+
+  const area = document.getElementById('results-area');
+  area.innerHTML = '';
+
+  // 1. Summary Table
+  area.appendChild(renderSummaryCard(exp.summary));
+
+  // 2. Convergence Chart
+  area.appendChild(renderConvergenceCard(exp.results));
+
+  // 3. Best Solution
+  if (exp.best_run) area.appendChild(renderBestSolutionCard(exp.best_run, exp.best_config_detail, exp.problem_info));
+
+  // 4. All Runs
+  area.appendChild(renderRunsCard(exp.results));
+
+  showToast('Эксперимент завершён! Лучший fitness: ' + exp.best_run?.best_fitness?.toFixed(4), 'success');
+}
+
+function renderSummaryCard(summary) {
+  const bestFit = Math.max(...summary.map(s => s.best));
+  const html = `
+    <div class="result-card">
+      <h3>📊 Сводная таблица</h3>
+      <table class="summary-table">
+        <thead><tr>
+          <th>Алгоритм</th><th>Лучшее</th><th>Среднее</th><th>Худшее</th><th>StdDev</th><th>Время</th>
+        </tr></thead>
+        <tbody>
+          ${summary.map(s => {
+            const color = algColors[s.algorithm] || '#00e5ff';
+            const isBest = s.best === bestFit;
+            return `<tr>
+              <td><span class="alg-badge" style="background:${color}20;color:${color};border:1px solid ${color}40">${s.algorithm}</span></td>
+              <td class="fitness-val ${isBest?'best':''}">${s.best.toFixed(4)}${isBest?' ★':''}</td>
+              <td class="fitness-val">${s.mean.toFixed(4)}</td>
+              <td class="fitness-val" style="color:var(--text2)">${s.worst.toFixed(4)}</td>
+              <td style="font-family:monospace;font-size:12px;color:var(--text2)">${s.std.toFixed(4)}</td>
+              <td style="font-family:monospace;font-size:12px;color:var(--text3)">${s.mean_time.toFixed(2)}s</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  const div = document.createElement('div');
+  div.innerHTML = html;
+  return div.firstElementChild;
+}
+
+function renderConvergenceCard(results) {
+  const div = document.createElement('div');
+  div.className = 'result-card';
+  div.innerHTML = `
+    <h3>📈 Кривые сходимости</h3>
+    <div class="tab-bar" id="conv-tabs"></div>
+    <canvas id="convergence-canvas" height="260"></canvas>
+  `;
+
+  // Группируем по алгоритму, берём медианный запуск
+  const byAlg = {};
+  results.forEach(r => {
+    if (!byAlg[r.algorithm]) byAlg[r.algorithm] = [];
+    byAlg[r.algorithm].push(r);
+  });
+
+  const algIds = Object.keys(byAlg);
+  const tabs = div.querySelector('#conv-tabs');
+  let currentTab = 'all';
+
+  const tabData = {'all': null};
+  algIds.forEach(id => tabData[id] = null);
+
+  // Tabs
+  ['all', ...algIds].forEach(id => {
+    const btn = document.createElement('button');
+    btn.className = 'tab-btn' + (id === 'all' ? ' active' : '');
+    btn.textContent = id === 'all' ? 'Все' : id;
+    btn.onclick = () => {
+      tabs.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTab = id;
+      drawChart(id);
+    };
+    tabs.appendChild(btn);
+  });
+
+  // Defer drawing
+  setTimeout(() => drawChart('all'), 100);
+
+  function drawChart(tab) {
+    const canvas = div.querySelector('#convergence-canvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.offsetWidth || 600;
+    const H = canvas.height;
+    canvas.width = W;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.fillStyle = '#151b24';
+    ctx.fillRect(0, 0, W, H);
+
+    const pad = {top: 20, right: 20, bottom: 40, left: 60};
+    const cW = W - pad.left - pad.right;
+    const cH = H - pad.top - pad.bottom;
+
+    const series = [];
+    if (tab === 'all') {
+      algIds.forEach(alg => {
+        const runs = byAlg[alg];
+        if (!runs.length || !runs[0].convergence.length) return;
+        const maxLen = Math.max(...runs.map(r => r.convergence.length));
+        const avgConv = Array(maxLen).fill(0);
+        const bestConv = Array(maxLen).fill(-Infinity);
+        runs.forEach(r => {
+          r.convergence.forEach((v, i) => {
+            avgConv[i] += v / runs.length;
+            bestConv[i] = Math.max(bestConv[i], v);
+          });
+        });
+        series.push({label: alg, color: algColors[alg]||'#00e5ff', data: bestConv});
+      });
+    } else {
+      const runs = byAlg[tab];
+      if (runs) {
+        runs.forEach((r, i) => {
+          if (r.convergence.length) {
+            series.push({
+              label: `Run #${r.run_id}`,
+              color: algColors[tab]||'#00e5ff',
+              data: r.convergence,
+              alpha: 0.4 + i * 0.1,
+            });
+          }
+        });
+        // Best run
+        const bestRun = runs.reduce((a,b) => a.best_fitness > b.best_fitness ? a : b);
+        if (bestRun.convergence.length) {
+          series.push({label: 'Лучший', color: '#ffffff', data: bestRun.convergence, lineWidth: 2.5});
+        }
+      }
+    }
+
+    if (!series.length) { ctx.fillStyle = '#4a6680'; ctx.fillText('Нет данных', W/2 - 40, H/2); return; }
+
+    // Value range
+    const allVals = series.flatMap(s => s.data).filter(v => v > -1e8);
+    if (!allVals.length) return;
+    let minV = Math.min(...allVals), maxV = Math.max(...allVals);
+    if (minV === maxV) { minV -= 0.1; maxV += 0.1; }
+    const range = maxV - minV;
+    minV -= range * 0.05; maxV += range * 0.05;
+
+    const maxLen = Math.max(...series.map(s => s.data.length));
+
+    // Grid
+    ctx.strokeStyle = '#1e2a38'; ctx.lineWidth = 1;
+    for (let i = 0; i <= 5; i++) {
+      const y = pad.top + cH - (i/5)*cH;
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left + cW, y); ctx.stroke();
+      const v = minV + (i/5)*(maxV-minV);
+      ctx.fillStyle = '#4a6680'; ctx.font = '11px JetBrains Mono';
+      ctx.fillText(v.toFixed(2), 2, y + 4);
+    }
+
+    // Axis
+    ctx.strokeStyle = '#253040'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH); ctx.lineTo(pad.left+cW, pad.top+cH); ctx.stroke();
+
+    // X labels
+    ctx.fillStyle = '#4a6680'; ctx.font = '11px JetBrains Mono';
+    for (let i = 0; i <= 4; i++) {
+      const x = pad.left + (i/4)*cW;
+      const iteration = Math.round((i/4)*maxLen);
+      ctx.fillText(iteration, x - 10, pad.top + cH + 18);
+    }
+
+    // Series
+    series.forEach(s => {
+      if (!s.data.length) return;
+      ctx.strokeStyle = s.color;
+      ctx.globalAlpha = s.alpha || 1.0;
+      ctx.lineWidth = s.lineWidth || 1.8;
+      ctx.beginPath();
+      s.data.forEach((v, i) => {
+        if (v <= -1e8) return;
+        const x = pad.left + (i / (maxLen - 1)) * cW;
+        const y = pad.top + cH - ((v - minV) / (maxV - minV)) * cH;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+    });
+    ctx.globalAlpha = 1.0;
+
+    // Legend
+    series.slice(0, 8).forEach((s, i) => {
+      const lx = pad.left + 10 + (i % 4) * 140;
+      const ly = pad.top + 12 + Math.floor(i/4) * 16;
+      ctx.fillStyle = s.color; ctx.fillRect(lx, ly - 6, 18, 3);
+      ctx.fillStyle = '#7a9ab8'; ctx.font = '11px IBM Plex Sans';
+      ctx.fillText(s.label, lx + 24, ly);
+    });
+  }
+
+  return div;
+}
+
+function renderBestSolutionCard(bestRun, configDetail, problemInfo) {
+  const div = document.createElement('div');
+  div.className = 'result-card';
+
+  const objNames = problemInfo?.objective_names || [];
+  const weights = problemInfo?.weights || [];
+  const maxObjVal = bestRun.objective_vector?.length ? Math.max(...bestRun.objective_vector.filter(v => v > 0)) : 1;
+
+  div.innerHTML = `
+    <h3>🏆 Лучшее решение — ${bestRun.algorithm}</h3>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:20px">
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">FITNESS</div>
+        <div style="font-family:'Unbounded',sans-serif;font-size:28px;font-weight:800;color:var(--green)">${bestRun.best_fitness.toFixed(4)}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">АЛГОРИТМ</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:16px;color:${algColors[bestRun.algorithm]||'#00e5ff'}">${bestRun.algorithm}</div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px">ВРЕМЯ</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--text)">${bestRun.elapsed_sec}s</div>
+      </div>
+    </div>
+
+    ${bestRun.objective_vector?.length ? `
+    <div style="margin-bottom:20px">
+      <div style="font-size:11px;color:var(--text3);margin-bottom:12px;letter-spacing:1px">КРИТЕРИИ</div>
+      <div class="obj-bars">
+        ${bestRun.objective_vector.map((v,i) => `
+          <div class="obj-row">
+            <div class="obj-name">${objNames[i]||'f'+i} <span style="color:var(--text3);font-size:10px">(w=${weights[i]||''})</span></div>
+            <div class="obj-bar-wrap"><div class="obj-bar" style="width:${Math.max(0, Math.min(100, (v/maxObjVal)*100))}%;background:${['#00e5ff','#00ff88','#ff8c00','#9b59ff'][i%4]}"></div></div>
+            <div class="obj-val">${v.toFixed(3)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <div style="font-size:11px;color:var(--text3);margin-bottom:12px;letter-spacing:1px">СОСТАВ КОНФИГУРАЦИИ</div>
+    <div class="best-solution-grid">
+      ${(configDetail || []).map(c => `
+        <div class="component-card">
+          <div class="component-id">${c.id}</div>
+          <div class="component-params">
+            ${Object.entries(c.params||{}).map(([k,v]) => `${k}: <span>${v}</span>`).join('<br>')}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  return div;
+}
+
+function renderRunsCard(results) {
+  const div = document.createElement('div');
+  div.className = 'result-card';
+  div.innerHTML = `
+    <h3>📋 Все запуски</h3>
+    <div class="run-list">
+      ${[...results].sort((a,b) => b.best_fitness - a.best_fitness).map(r => {
+        const color = algColors[r.algorithm] || '#00e5ff';
+        return `<div class="run-item">
+          <span class="run-alg" style="color:${color}">${r.algorithm}</span>
+          <span style="font-size:11px;color:var(--text3)">run#${r.run_id}</span>
+          <span style="font-size:11px;color:var(--text2)">${r.best_config_ids.join(', ')}</span>
+          <span class="run-fitness">${r.best_fitness.toFixed(4)}</span>
+          <span class="run-time">${r.elapsed_sec}s</span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+  return div;
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════════════════════════════════════
+async function loadHistory() {
+  const resp = await fetch('/api/experiments');
+  const list = await resp.json();
+  const container = document.getElementById('history-list');
+
+  if (!list.length) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">📂</div><div class="empty-text">Экспериментов пока нет</div></div>';
+    return;
+  }
+
+  container.innerHTML = list.map(e => {
+    const d = new Date(e.created_at * 1000).toLocaleString('ru');
+    const algs = (e.config.algorithms||[]).map(a => a.id).join(', ');
+    const domainId = e.config.domain_id;
+    const domain = domains.find(x => x.id === domainId);
+    return `
+      <div class="card" style="margin-bottom:12px;cursor:default">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent)">#${e.id}</span>
+          <span style="font-size:13px;font-weight:600;color:#fff">${domain?.icon||''} ${domain?.name||domainId}</span>
+          <span class="chip" style="margin-left:auto;${e.status==='done'?'color:var(--green);border-color:var(--green)':e.status==='error'?'color:var(--red);border-color:var(--red)':''}">${e.status}</span>
+        </div>
+        <div style="font-size:12px;color:var(--text2)">Алгоритмы: ${algs} · Повторений: ${e.config.n_runs} · evals: ${e.config.max_evals}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:4px">${d}</div>
+        ${e.status==='done' ? `<button class="btn btn-outline" style="margin-top:12px;font-size:12px;padding:7px 14px" onclick="showExpResults('${e.id}')">Показать результаты</button>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('stat-experiments').textContent = list.length;
+}
+
+async function showExpResults(expId) {
+  showPage('configure');
+  currentExpId = expId;
+  await loadResults(expId);
+}
+
+function updateStatExperiments() {
+  fetch('/api/experiments').then(r=>r.json()).then(list => {
+    document.getElementById('stat-experiments').textContent = list.length;
+  });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════════════════════════════════
+function showToast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 4000);
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

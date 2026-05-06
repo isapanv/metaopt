@@ -1,0 +1,27 @@
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: metaopt
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: metaopt_db
+    volumes:
+      - pg_data:/var/lib/postgresql/data   
+    ports:
+      - "5432:5432"   
+  app:
+    build: .           
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://metaopt:secret@db:5432/metaopt_db
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db             
+
+volumes:
+  pg_data:             
