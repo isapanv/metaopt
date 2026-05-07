@@ -6,7 +6,6 @@
 [![Flask](https://img.shields.io/badge/Flask-3.1-black?logo=flask)](https://flask.palletsprojects.com)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-336791?logo=postgresql&logoColor=white)](https://postgresql.org)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docker.com)
-[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
 
 [Обзор](#обзор) · [Быстрый старт](#быстрый-старт) · [Алгоритмы](#алгоритмы) · [Использование](#использование) · [API](#api-reference) · [Документация](DOCUMENTATION.md)
 
